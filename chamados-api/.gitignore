@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 🛡️ SEGURANÇA DO BANCO (NEON) ###
+**/application.properties
