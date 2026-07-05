@@ -40,8 +40,24 @@ public class ChamadoController {
     }
     @PutMapping("/{id}/assumir")
     public ResponseEntity<ChamadoDTO> assumir(@PathVariable Long id, @RequestBody String nomeTecnico) {
-    String nomeLimpo = nomeTecnico.replace("\"", "").trim();
-    ChamadoDTO atualizado = chamadoService.assumirChamado(id, nomeLimpo);
-    return ResponseEntity.ok(atualizado);
-}
+        // Remove as aspas extras que o Postman ou o JavaScript costumam enviar no formato raw text
+        String nomeLimpo = nomeTecnico.replace("\"", "").trim();
+        
+        ChamadoDTO atualizado = chamadoService.assumirChamado(id, nomeLimpo);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    //  2. Rota para Fechar o Chamado (PUT)
+    @PutMapping("/{id}/fechar")
+    public ResponseEntity<ChamadoDTO> fechar(@PathVariable Long id) {
+        ChamadoDTO atualizado = chamadoService.fecharChamado(id);
+        return ResponseEntity.ok(atualizado);
+    }
+
+    // 3. Rota para Reabrir o Chamado (PUT)
+    @PutMapping("/{id}/reabrir")
+    public ResponseEntity<ChamadoDTO> reabrir(@PathVariable Long id) {
+        ChamadoDTO atualizado = chamadoService.reabrirChamado(id);
+        return ResponseEntity.ok(atualizado);
+    }
 }

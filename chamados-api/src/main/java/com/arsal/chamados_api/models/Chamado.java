@@ -1,12 +1,26 @@
 package com.arsal.chamados_api.models;
 
+import java.time.LocalDateTime;
+
 import com.arsal.chamados_api.enums.Equipamento;
 import com.arsal.chamados_api.enums.Prioridade;
-import com.arsal.chamados_api.enums.Status;
 import com.arsal.chamados_api.enums.Setor;
-import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import com.arsal.chamados_api.enums.Status;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @Entity
@@ -35,9 +49,9 @@ public class Chamado {
     private Prioridade prioridade; 
 
     @Enumerated(EnumType.STRING)
-    private Status status; 
-
+    private Status status;
     
+   
     @ManyToOne
     @JoinColumn(name = "tecnico_id")
     private Tecnico tecnico; 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.arsal.chamados_api.dtos.ChamadoDTO;
 import com.arsal.chamados_api.models.Chamado;
+import com.arsal.chamados_api.models.Tecnico;
 import com.arsal.chamados_api.repositories.ChamadoRepository;
 import com.arsal.chamados_api.repositories.TecnicoRepository;
 
@@ -76,39 +77,63 @@ public class ChamadoService {
                 .collect(Collectors.toList());
     }
 
+    
+
+    //  1. REGRA DE ASSUMIR (VALIDAÇÃO ESTRITA) - 
     public ChamadoDTO assumirChamado(Long chamadoId, String nomeTecnico) {
-    // 1. Busca o chamado no banco. Se não achar, lança um erro.
-    Chamado chamado = chamadoRepository.findById(chamadoId)
-            .orElseThrow(() -> new RuntimeException("Chamado não encontrado!"));
+        Chamado chamado = chamadoRepository.findById(chamadoId)
+                .orElseThrow(() -> new RuntimeException("Chamado não encontrado!"));
 
-    // 2. Busca o técnico pelo nome. Se não existir, cria um novo na hora! 🦾
-    com.arsal.chamados_api.models.Tecnico tecnico = tecnicoRepository.findByNome(nomeTecnico)
-            .orElseGet(() -> {
-                com.arsal.chamados_api.models.Tecnico novoTecnico = new com.arsal.chamados_api.models.Tecnico();
-                novoTecnico.setNome(nomeTecnico);
-                return tecnicoRepository.save(novoTecnico);
-            });
+        // Busca o nome exato vindo do select do front (Ex: "André Lessa")
+        Tecnico tecnico = tecnicoRepository.findByNome(nomeTecnico)
+                .orElseThrow(() -> new RuntimeException("Técnico '" + nomeTecnico + "' não cadastrado!"));
 
-    // 3. Aplica as regras de negócio do Cartão 06 📊
-    chamado.setStatus(com.arsal.chamados_api.enums.Status.ANDAMENTO); // Muda para ANDAMENTO
-    chamado.setTecnico(tecnico); // Vincula o técnico encontrado/criado
-    chamado.setAtualizadoEm(LocalDateTime.now()); // Atualiza o carimbo de modificação
+        chamado.setStatus(com.arsal.chamados_api.enums.Status.ANDAMENTO);
+        chamado.setTecnico(tecnico);
+        chamado.setAtualizadoEm(LocalDateTime.now());
 
-    // 4. Salva as alterações no Postgres do Mac
-    chamado = chamadoRepository.save(chamado);
+        chamado = chamadoRepository.save(chamado);
+        return mapearParaDTO(chamado);
+    }
 
-    // 5. Retorna o DTO atualizado para o Angular pintar o card de azul/andamento
-    return new ChamadoDTO(
-            chamado.getId(),
-            chamado.getUsuarioNome(),
-            chamado.getSetor() != null ? chamado.getSetor().name() : null,
-            chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
-            chamado.getTipoProblema(),
-            chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
-            chamado.getTipoProblema(),
-            chamado.getStatus().name(),
-            chamado.getTecnico().getId(), // Agora o ID do técnico vai preenchido!
-            chamado.getCriadoEm().format(formatter)
-    );
-}
+    // 2. REGRA DE FECHAMENTO - 
+    public ChamadoDTO fecharChamado(Long chamadoId) {
+        Chamado chamado = chamadoRepository.findById(chamadoId)
+                .orElseThrow(() -> new RuntimeException("Chamado não encontrado!"));
+
+        chamado.setStatus(com.arsal.chamados_api.enums.Status.FECHADO);
+        chamado.setAtualizadoEm(LocalDateTime.now());
+
+        chamado = chamadoRepository.save(chamado);
+        return mapearParaDTO(chamado);
+    }
+
+    // 🔄 3. REGRA DE REABERTURA - Cartão 06
+    public ChamadoDTO reabrirChamado(Long chamadoId) {
+        Chamado chamado = chamadoRepository.findById(chamadoId)
+                .orElseThrow(() -> new RuntimeException("Chamado não encontrado!"));
+
+        chamado.setStatus(com.arsal.chamados_api.enums.Status.ABERTO);
+        chamado.setTecnico(null); // Limpa o relacionamento com o técnico
+        chamado.setAtualizadoEm(LocalDateTime.now());
+
+        chamado = chamadoRepository.save(chamado);
+        return mapearParaDTO(chamado);
+    }
+
+    //  4. MÉTODO AUXILIAR DE MAPEAMENTO
+    private ChamadoDTO mapearParaDTO(Chamado chamado) {
+        return new ChamadoDTO(
+                chamado.getId(),
+                chamado.getUsuarioNome(),
+                chamado.getSetor() != null ? chamado.getSetor().name() : null,
+                chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
+                chamado.getTipoProblema(),
+                chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
+                chamado.getTipoProblema(),
+                chamado.getStatus() != null ? chamado.getStatus().name() : null,
+                chamado.getTecnico() != null ? chamado.getTecnico().getId() : null, // Pega o ID da Entity
+                chamado.getCriadoEm() != null ? chamado.getCriadoEm().format(formatter) : null
+        );
+    }
 }
