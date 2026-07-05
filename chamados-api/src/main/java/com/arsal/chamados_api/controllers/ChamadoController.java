@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,4 +38,10 @@ public class ChamadoController {
         List<ChamadoDTO> lista = chamadoService.findAll();
         return ResponseEntity.ok(lista);
     }
+    @PutMapping("/{id}/assumir")
+    public ResponseEntity<ChamadoDTO> assumir(@PathVariable Long id, @RequestBody String nomeTecnico) {
+    String nomeLimpo = nomeTecnico.replace("\"", "").trim();
+    ChamadoDTO atualizado = chamadoService.assumirChamado(id, nomeLimpo);
+    return ResponseEntity.ok(atualizado);
+}
 }
