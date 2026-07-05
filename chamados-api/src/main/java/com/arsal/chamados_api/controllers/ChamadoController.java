@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/chamados")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://andrelessssa.github.io")
 public class ChamadoController {
 
     @Autowired
