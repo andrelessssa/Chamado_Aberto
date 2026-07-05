@@ -1,7 +1,6 @@
 package com.arsal.chamados_api.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record ChamadoDTO(
     Long id,
@@ -12,10 +11,9 @@ public record ChamadoDTO(
     @NotBlank(message = "A descrição é obrigatória")
     String descricao,
     
-    @NotBlank(message = "O status é obrigatório")
+ 
     String status,
     
-    @NotNull(message = "O ID do técnico é obrigatório")
     Long tecnicoId
 ) {
     
