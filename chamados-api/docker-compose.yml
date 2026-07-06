@@ -1,0 +1,34 @@
+services:
+  db-postgres:
+    image: postgres:15-alpine
+    container_name: arsal-postgres
+    environment:
+      POSTGRES_DB: chamadoaberto
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: satell1tE
+    ports:
+      - "5433:5432" # 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - arsal-network
+
+  api-chamados:
+    build: .
+    container_name: arsal-api
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db-postgres
+    environment:
+      # Aqui dizemos para a API procurar o container do banco na porta interna dele (5432)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/chamadoaberto
+    networks:
+      - arsal-network
+
+volumes:
+  postgres_data:
+
+networks:
+  arsal-network:
+    driver: bridge
