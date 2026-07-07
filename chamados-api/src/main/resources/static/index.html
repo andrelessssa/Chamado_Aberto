@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARSAL · Central de Chamados TI</title>
+  <!-- Link para o arquivo CSS externo -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      ARSAL · Chamados TI
+    </div>
+    <div class="topbar-meta">
+      <span><span id="live-count">0</span> chamados abertos</span>
+      <span id="live-clock">--:--:--</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="abrir">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x=".5" y=".5" width="12" height="12" rx="2.5" stroke="currentColor"/><path d="M6.5 4v5M4 6.5h5" stroke="currentColor" stroke-linecap="round"/></svg>
+      Abrir Chamado
+    </button>
+    <button class="tab-btn" data-tab="painel">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x=".5" y=".5" width="12" height="12" rx="2.5" stroke="currentColor"/><path d="M2 4.5h9M2 8.5h6" stroke="currentColor" stroke-linecap="round"/></svg>
+      Painel Técnico
+      <span class="tab-badge" id="badge-abertos">0</span>
+    </button>
+    <button class="tab-btn" data-tab="relatorio">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x=".5" y=".5" width="12" height="12" rx="2.5" stroke="currentColor"/><path d="M3 9.5l2.5-3L8 8l2.5-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Relatório Mensal
+    </button>
+  </div>
+
+  <!-- VIEW 1 – ABRIR CHAMADO -->
+  <div class="view active" id="view-abrir">
+    <div class="form-hero">
+      <div class="label">Central de Suporte</div>
+      <h1>Precisa de ajuda com TI?</h1>
+      <p>Preencha abaixo. A equipe técnica recebe o chamado na hora.</p>
+    </div>
+
+    <div class="card">
+      <div class="form-grid">
+        <div class="field">
+          <label>Seu nome</label>
+          <input id="f-nome" type="text" placeholder="Ex: Maria Silva">
+        </div>
+        
+        <!-- 🏢 SETOR / DEPARTAMENTO (Transformado em Select com as opções do seu Enum) -->
+        <div class="field">
+          <label>SETOR / DEPARTAMENTO</label>
+      <select id="f-setor">
+    <option value="">Selecione o setor...</option>
+      </select>
+        </div>
+
+       <!-- 🖥️ TIPO DE EQUIPAMENTO (Agora dinâmico via Java!) -->
+      <div class="field">
+          <label>Tipo de equipamento</label>
+        <select id="f-equip">
+      <option value="">Selecione o equipamento...</option>
+      </select>
+      </div>
+        <div class="field">
+          <label>Tipo de problema / Título</label>
+          <input id="f-tipo" type="text" placeholder="Ex: Erro no sistema, Tela piscando">
+        </div>
+        <div class="field form-full">
+          <label>Prioridade</label>
+          <div class="pill-group" id="prio-group">
+            <button class="pill" data-prio="BAIXA">🟢 Baixa — pode esperar</button>
+            <button class="pill" data-prio="MEDIA">🟡 Média — atender em breve</button>
+            <button class="pill" data-prio="ALTA">🔴 Alta — parou de trabalhar</button>
+          </div>
+        </div>
+        <div class="field form-full">
+          <label>Descreva o problema</label>
+          <textarea id="f-desc" placeholder="Explique o que aconteceu..."></textarea>
+        </div>
+      </div>
+      <button class="btn-submit" id="btn-enviar">Enviar Chamado</button>
+      <div class="flash" id="form-flash">
+        <strong>✓ Chamado registrado!</strong>
+        A equipe de TI recebeu o seu chamado e vai te atender em breve.
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2 – PAINEL TÉCNICO -->
+  <div class="view" id="view-painel">
+    <div class="painel-header">
+      <h2>Fila de Chamados</h2>
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="todos">Todos</button>
+        <button class="filter-btn" data-filter="ABERTO">Abertos</button>
+        <button class="filter-btn" data-filter="ANDAMENTO">Em andamento</button>
+        <button class="filter-btn" data-filter="FECHADO">Fechados</button>
+      </div>
+    </div>
+
+    <div id="empty-state">
+      <span>📭</span>
+      Nenhum chamado no momento.
+    </div>
+    <div class="chamados-list" id="chamados-list"></div>
+  </div>
+
+  <!-- VIEW 3 – RELATÓRIO -->
+  <div class="view" id="view-relatorio">
+    <div class="report-header">
+      <h2>Painel Técnico Integrado</h2>
+    </div>
+    <div class="chart-card">
+      <h3>Lista de Técnicos Cadastrados no Banco</h3>
+      <table class="tec-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome do Técnico Autorizado</th>
+          </tr>
+        </thead>
+        <tbody id="tec-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL – ASSUMIR CHAMADO -->
+  <div class="modal-overlay" id="modal-assumir">
+    <div class="modal">
+      <h3>Assumir chamado</h3>
+      <div class="field">
+        <label>Selecione seu Nome</label>
+        <select id="m-tecnico-select">
+          <!-- Será preenchido dinamicamente com os técnicos do banco -->
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modal-cancel">Cancelar</button>
+        <button class="btn-confirm" id="modal-confirm">Assumir →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <!-- Script da lógica externa -->
+  <script src="app.js"></script>
+</body>
+</html>
