@@ -7,7 +7,15 @@ public enum Setor {
     PROTOCOLO,
     TI,
     ADMINISTRATIVO,
-    JURIDICO,
+    JURÍDICO,
     SANEAMENTO,
-    TRANSPORTE
+    TRANSPORTE,
+    COMUNICAÇÃO,
+    RECUPERAÇÃO,
+    RECEPÇÃO,
+    GABINETE,
+    OUVIDORIA,
+    TARIFAS,
+    GÁS,
+    ENERGIA,
 }

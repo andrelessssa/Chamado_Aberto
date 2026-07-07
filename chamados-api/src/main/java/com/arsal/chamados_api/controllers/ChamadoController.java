@@ -1,6 +1,5 @@
 package com.arsal.chamados_api.controllers;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +21,19 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/chamados")
-@CrossOrigin(origins = "https://andrelessssa.github.io")
+@CrossOrigin(origins = "*")
 public class ChamadoController {
 
     @Autowired
     private ChamadoService chamadoService;
 
+    @GetMapping("/setores")
+    public ResponseEntity<List<String>> listarSetores() {
+        List<String> setores = java.util.Arrays.stream(com.arsal.chamados_api.enums.Setor.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(setores);
+    }
     @PostMapping
     public ResponseEntity<ChamadoDTO> criarChamado(@RequestBody @Valid ChamadoDTO dto) {
         ChamadoDTO novoChamado = chamadoService.create(dto);
