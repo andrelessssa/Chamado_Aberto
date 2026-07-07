@@ -1,6 +1,8 @@
 package com.arsal.chamados_api.controllers;
 
+import java.util.Arrays;
 import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.arsal.chamados_api.dtos.ChamadoDTO;
+import com.arsal.chamados_api.enums.Equipamento;
 import com.arsal.chamados_api.services.ChamadoService;
 
 import jakarta.validation.Valid;
@@ -65,5 +68,9 @@ public class ChamadoController {
     public ResponseEntity<ChamadoDTO> reabrir(@PathVariable Long id) {
         ChamadoDTO atualizado = chamadoService.reabrirChamado(id);
         return ResponseEntity.ok(atualizado);
+    }
+    @GetMapping("/equipamentos")
+        public ResponseEntity<List<Equipamento>> listarEquipamentos() {
+        return ResponseEntity.ok(Arrays.asList(Equipamento.values()));
     }
 }

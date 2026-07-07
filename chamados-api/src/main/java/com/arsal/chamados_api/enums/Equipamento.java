@@ -1,10 +1,11 @@
 package com.arsal.chamados_api.enums;
 
 public enum Equipamento {
-    DESKTOP,
+    COMPUTADOR,
     NOTEBOOK,
     IMPRESSORA,
-    REDE,
     MONITOR,
+    REDE,
+    SISTEMA,
     OUTRO
 }
