@@ -1,5 +1,5 @@
 // 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT
-const API_BASE_URL = window.location.origin + '/api';
+const API_BASE_URL = 'http://192.168.1.221:8081/api';
 
 // 🔒 CONTROLE DE ACESSO: Verifica se na URL tem "?perfil=tecnico"
 const urlParams = new URLSearchParams(window.location.search);

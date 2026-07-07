@@ -24,19 +24,23 @@ public class ChamadoService {
 
     private final java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy, HH:mm");
 
-    public ChamadoDTO create(ChamadoDTO dto) {
+      public ChamadoDTO create(ChamadoDTO dto) {
         Chamado chamado = new Chamado();
         
-      
         chamado.setUsuarioNome(dto.usuarioNome());
-        chamado.setTipoProblema(dto.titulo()); 
+        chamado.setTipoProblema(dto.descricao() != null ? dto.descricao() : dto.titulo()); 
         
+        if (dto.setor() != null) {
+            chamado.setSetor(com.arsal.chamados_api.enums.Setor.valueOf(dto.setor().toUpperCase().trim()));
+        }
+        if (dto.equipamento() != null) {
+            chamado.setEquipamento(com.arsal.chamados_api.enums.Equipamento.valueOf(dto.equipamento().toUpperCase().trim()));
+        }
+        if (dto.prioridade() != null) {
+            chamado.setPrioridade(com.arsal.chamados_api.enums.Prioridade.valueOf(dto.prioridade().toUpperCase().trim()));
+        }
         
-        if (dto.setor() != null) chamado.setSetor(com.arsal.chamados_api.enums.Setor.valueOf(dto.setor().toUpperCase()));
-        if (dto.equipamento() != null) chamado.setEquipamento(com.arsal.chamados_api.enums.Equipamento.valueOf(dto.equipamento().toUpperCase()));
-        if (dto.prioridade() != null) chamado.setPrioridade(com.arsal.chamados_api.enums.Prioridade.valueOf(dto.prioridade().toUpperCase()));
-        
-        // 📋 REGRAS DE RETAGUARDA (O Java gera automático!)
+        // Configurações automáticas limpas 📅
         chamado.setStatus(com.arsal.chamados_api.enums.Status.ABERTO); 
         chamado.setTecnico(null); 
         chamado.setCriadoEm(LocalDateTime.now()); 
@@ -44,22 +48,19 @@ public class ChamadoService {
         
         chamado = chamadoRepository.save(chamado);
         
-        // Retorna o DTO passando o tipoProblema tanto para o titulo quanto para a descricao do card
         return new ChamadoDTO(
                 chamado.getId(),
                 chamado.getUsuarioNome(),
                 chamado.getSetor() != null ? chamado.getSetor().name() : null,
                 chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
-                chamado.getTipoProblema(), // Alimenta o titulo do card
+                dto.titulo(),          
                 chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
-                chamado.getTipoProblema(), // Alimenta a descricao curta do card
+                chamado.getTipoProblema(), 
                 chamado.getStatus().name(),
                 null,
                 chamado.getCriadoEm().format(formatter)
         );
     }
-
-    
     public List<ChamadoDTO> findAll() {
         return chamadoRepository.findAll().stream()
                 .map(chamado -> new ChamadoDTO(

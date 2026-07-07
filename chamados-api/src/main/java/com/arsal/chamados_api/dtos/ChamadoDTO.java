@@ -2,6 +2,7 @@ package com.arsal.chamados_api.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 
+
 public record ChamadoDTO(
     Long id,
     
