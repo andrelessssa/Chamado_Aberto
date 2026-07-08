@@ -1,4 +1,4 @@
-// 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT
+// 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT (REDE LOCAL)
 const API_BASE_URL = 'http://192.168.1.221:8081/api';
 
 // 🔒 CONTROLE DE ACESSO: Verifica se na URL tem "?perfil=tecnico"
@@ -12,7 +12,7 @@ let pendingAssumirId = null;
 let selectedPrio = 'MEDIA';
 
 // ============================================================
-// REQUISIÇÕES DA API (FETCH)
+// REQUISIÇÕES DA API (FETCH) - TOTALMENTE SEM NGROK 🧼
 // ============================================================
 
 // GET - Buscar setores dinâmicos do Enum do Java
@@ -38,7 +38,7 @@ async function carregarSetoresDoEnum() {
   }
 }
 
-// GET - Buscar equipamentos dinâmicos do Enum do Java (AGORA SEPARADA E CORRETA! 🌟)
+// GET - Buscar equipamentos dinâmicos do Enum do Java
 async function carregarEquipamentosDoEnum() {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/equipamentos`);
@@ -64,10 +64,9 @@ async function carregarEquipamentosDoEnum() {
 // GET - Listar todos os chamados
 async function carregarChamados() {
   try {
-    const res = await fetch(`${API_BASE_URL}/chamados`, {
-      headers: { 'ngrok-skip-browser-warning': 'true' }
-    });
+    const res = await fetch(`${API_BASE_URL}/chamados`);
     if (!res.ok) throw new Error('Erro ao buscar chamados');
+    
     chamados = await res.json();
     updateBadgeAndCount();
     
@@ -77,42 +76,89 @@ async function carregarChamados() {
     }
   } catch (err) {
     console.error(err);
-    toast('Você não está conectado na rede da ARSAL', true);
+    toast('Você não está conectado na rede da ARSAL ⚠', true);
   }
 }
 
 // GET - Listar técnicos autorizados do banco
+// 🌟 ATUALIZADO: Buscar técnicos na rota correta do seu novo Controller
 async function carregarTecnicos() {
   try {
-    const res = await fetch(`${API_BASE_URL}/chamados/tecnicos`, {
-      headers: { 'ngrok-skip-browser-warning': 'true' }
-    });
+    const res = await fetch(`${API_BASE_URL}/tecnicos`); // Rota corrigida de /chamados/tecnicos para /tecnicos
     if (!res.ok) throw new Error('Erro ao buscar técnicos');
     tecnicos = await res.json();
     preencherSelectTecnicos();
-    renderTabelaTecnicos();
+    renderTabelaTecnicos(); // Atualiza a aba de gerenciamento também!
   } catch (err) {
     console.error('Erro ao conectar com técnicos:', err);
   }
 }
 
-// POST - Criar novo chamado
+// ➕ POST - Cadastrar novo técnico no banco
+async function apiCadastrarTecnico(nome) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/tecnicos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: nome })
+    });
+    
+    if (!res.ok) throw new Error('Erro ao cadastrar técnico');
+    
+    toast('Técnico cadastrado com sucesso! 🛡️');
+    document.getElementById('f-nome-tecnico').value = ''; // Limpa o input
+    await carregarTecnicos(); // Atualiza as listas na tela
+  } catch (err) {
+    console.error(err);
+    toast('Erro ao cadastrar técnico.', true);
+  }
+}
+
+// ❌ DELETE - Remover técnico do banco pelo ID
+async function apiDeletarTecnico(id) {
+  if (!confirm('Tem certeza que deseja remover este técnico do sistema?')) return;
+  
+  try {
+    const res = await fetch(`${API_BASE_URL}/tecnicos/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (!res.ok) throw new Error('Erro ao deletar técnico');
+    
+    toast('Técnico removido com sucesso.');
+    await carregarTecnicos(); // Atualiza a tela
+  } catch (err) {
+    console.error(err);
+    toast('Erro ao remover técnico ou ele está vinculado a um chamado.', true);
+  }
+}
+
+// POST - Criar novo chamado (COM TRATAMENTO DE ERRO DE VALIDAÇÃO 🩺)
 async function criarChamado(chamadoDTO) {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(chamadoDTO)
     });
+
+    // 🌟 Se o Java recusar por falta de dados (Status 400 ou 500 interno de validação)
+    if (res.status === 400 || res.status === 500) {
+      toast('Por favor, preencha todos os campos obrigatórios do formulário!', true);
+      return;
+    }
+
     if (!res.ok) throw new Error('Erro nas validações do servidor');
-    toast('Chamado registrado no banco com sucesso!');
+
+    toast('Chamado registrado com sucesso! 🚀');
     carregarChamados();
     resetForm();
   } catch (err) {
-    toast('Verifique os campos ou se você está na rede da ARSAL.', true);
+    console.error(err);
+    // 🌟 Só cai aqui se a rede cair ou o servidor estiver totalmente desligado
+    toast('Falha na conexão: Verifique se está conectado no Wi-Fi da ARSAL.', true);
   }
 }
 
@@ -122,8 +168,7 @@ async function apiAssumirChamado(id, nomeTecnico) {
     const res = await fetch(`${API_BASE_URL}/chamados/${id}/assumir`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'text/plain',
-        'ngrok-skip-browser-warning': 'true'
+        'Content-Type': 'text/plain'
       },
       body: `"${nomeTecnico}"`
     });
@@ -131,7 +176,7 @@ async function apiAssumirChamado(id, nomeTecnico) {
       const errorData = await res.json();
       throw new Error(errorData.message || 'Erro ao assumir');
     }
-    toast(`Chamado assunto por ${nomeTecnico}!`);
+    toast(`Chamado assumido por ${nomeTecnico}! 📝`);
     carregarChamados();
   } catch (err) {
     toast('Técnico não cadastrado ou inválido!', true);
@@ -142,8 +187,7 @@ async function apiAssumirChamado(id, nomeTecnico) {
 async function apiFecharChamado(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/${id}/fechar`, {
-      method: 'PUT',
-      headers: { 'ngrok-skip-browser-warning': 'true' }
+      method: 'PUT'
     });
     if (!res.ok) throw new Error();
     toast('Chamado marcado como resolvido ✓');
@@ -157,8 +201,7 @@ async function apiFecharChamado(id) {
 async function apiReabrirChamado(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/${id}/reabrir`, {
-      method: 'PUT',
-      headers: { 'ngrok-skip-browser-warning': 'true' }
+      method: 'PUT'
     });
     if (!res.ok) throw new Error();
     toast('Chamado reaberto e devolvido para a fila.', true);
@@ -190,20 +233,30 @@ function renderPainel() {
   data.forEach(c => {
     const div = document.createElement('div');
     div.className = `chamado-card prio-${c.prioridade} status-${c.status}`;
+    
+    // 🌟 ADICIONE ISSO AQUI PARA RASTREAR NO NAVEGADOR:
+console.log("Chamado vindo do Java:", c);
+
+    // 🌟 AJUSTADO: Usando chamado.tipoProblema para exibir o texto que veio do banco!
     div.innerHTML = `
     <div class="card-main">
       <h3>${esc(c.usuarioNome)} — Setor: ${esc(c.setor)}</h3>
       <div class="card-meta">
         <span class="badge badge-setor">${esc(c.setor)}</span>
-        <span class="badge badge-tipo">${esc(c.titulo)}</span>
+        <span class="badge badge-tipo">Chamado #${c.id}</span>
         <span class="badge badge-equip">${esc(c.equipmento || c.equipamento)}</span>
         <span class="badge badge-prio-${c.prioridade}">${c.prioridade}</span>
         <span class="badge badge-${c.status}">${c.status}</span>
       </div>
-      <div class="card-desc">${esc(c.descricao)}</div>
-      <div class="card-footer">
+      <div class="card-desc">${esc(c.tipoProblema)}</div> 
+     <div class="card-footer">
         <span class="card-ts">Aberto em: ${c.criadoEm || '--'}</span>
-        ${c.tecnicoId ? `<span class="card-tecnico">ID do Técnico Responsável: ${c.tecnicoId}</span>` : ''}
+        ${c.status === 'FECHADO' 
+          ? `<span class="card-tecnico" style="color: var(--green);">✅ Finalizado por: <strong>${esc(c.tecnico?.nome || c.tecnicoNome || 'TI ARSAL')}</strong></span>`
+          : (c.tecnico || c.tecnicoNome)
+            ? `<span class="card-tecnico">Responsável: <strong>${esc(c.tecnico?.nome || c.tecnicoNome)}</strong></span>` 
+            : '<span class="card-tecnico aguardando">👤 Aguardando Técnico...</span>'
+        }
       </div>
     </div>
     ${ehTecnico ? `
@@ -235,15 +288,33 @@ function preencherSelectTecnicos() {
 }
 
 function renderTabelaTecnicos() {
-  const tbody = document.getElementById('tec-tbody');
-  if (!tbody) return;
+  const container = document.getElementById('tec-tbody'); // Mantemos o mesmo ID para não quebrar o HTML
+  if (!container) return;
+  
   if (tecnicos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="2">Nenhum cadastrado.</td></tr>';
+    container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--txt-dim); grid-column: 1/-1;">Nenhum técnico cadastrado no banco.</div>';
     return;
   }
-  tbody.innerHTML = tecnicos.map(t => `<tr><td>${t.id || '--'}</td><td><strong>${t.nome || t}</strong></td></tr>`).join('');
+  
+  // 🌟 Renderiza como uma lista de cartões idênticos ao do chamado!
+  container.innerHTML = tecnicos.map(t => `
+    <div class="chamado-card" style="border-left-color: var(--amber); margin-bottom: 12px; grid-template-columns: 1fr auto;">
+      <div class="card-main" style="display: flex; align-items: center;">
+        <h3 style="margin-bottom: 0; font-size: 1.05rem;">
+          <span>💼</span> ${esc(t.nome)}
+        </h3>
+      </div>
+      <div class="card-actions" style="justify-content: center; height: 100%;">
+        <button class="act-btn" style="border-color: var(--rose); color: var(--rose); background: var(--rose-dim); padding: 6px 14px;" 
+                onmouseover="this.style.background='var(--rose)'; this.style.color='#0A1118';" 
+                onmouseout="this.style.background='var(--rose-dim)'; this.style.color='var(--rose)';"
+                onclick="apiDeletarTecnico(${t.id})">
+          Excluir
+        </button>
+      </div>
+    </div>
+  `).join('');
 }
-
 function updateBadgeAndCount() {
   const abertos = chamados.filter(c => c.status === 'ABERTO').length;
   const badge = document.getElementById('badge-abertos');
@@ -300,6 +371,18 @@ if (btnConfirm) {
     if (!nomeTecnico) return;
     apiAssumirChamado(pendingAssumirId, nomeTecnico);
     document.getElementById('modal-assumir').classList.remove('open');
+  });
+}
+
+const btnCadastrarTecnico = document.getElementById('btn-cadastrar-tecnico');
+if (btnCadastrarTecnico) {
+  btnCadastrarTecnico.addEventListener('click', () => {
+    const nomeInput = document.getElementById('f-nome-tecnico').value.trim();
+    if (!nomeInput) {
+      toast('Por favor, digite o nome do técnico!', true);
+      return;
+    }
+    apiCadastrarTecnico(nomeInput);
   });
 }
 
@@ -375,17 +458,27 @@ function updateClock() {
 
 function controlarAbasPorPerfil() {
   const abaRelatorio = document.querySelector('.tab-btn[data-tab="relatorio"]');
-  if (abaRelatorio) {
-    if (ehTecnico) {
-      abaRelatorio.style.display = 'flex';
-    } else {
-      abaRelatorio.style.display = 'none';
+  const abaEstatisticas = document.querySelector('.tab-btn[data-tab="estatisticas"]');
+  
+  if (ehTecnico) {
+    if (abaRelatorio) {
+      abaRelatorio.style.display = 'inline-flex';
+      abaRelatorio.style.alignItems = 'center';
     }
+    if (abaEstatisticas) {
+      abaEstatisticas.style.display = 'inline-flex';
+      abaEstatisticas.style.alignItems = 'center';
+    }
+  } else {
+    if (abaRelatorio) abaRelatorio.style.display = 'none';
+    if (abaEstatisticas) abaEstatisticas.style.display = 'none';
   }
+
+
 }
 
 // ============================================================
-// START (POLLING AUTOMÁTICO DE 4 SEGUNDOS COPIANDO O BACK)
+// START (POLLING AUTOMÁTICO DE 4 SEGUNDOS ⏱️)
 // ============================================================
 updateClock(); 
 setInterval(updateClock, 1000);
@@ -396,4 +489,4 @@ carregarTecnicos();
 setInterval(carregarChamados, 4000); 
 
 carregarSetoresDoEnum();
-carregarEquipamentosDoEnum(); // 🌟 ATIVADA AQUI NO START!
+carregarEquipamentosDoEnum();

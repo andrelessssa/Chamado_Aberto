@@ -48,19 +48,23 @@ public class ChamadoService {
         
         chamado = chamadoRepository.save(chamado);
         
+        // 🌟 RETORNO DO CRIAR CHAMADO (Ajustado exatamente para os 11 parâmetros do seu Record)
         return new ChamadoDTO(
                 chamado.getId(),
                 chamado.getUsuarioNome(),
                 chamado.getSetor() != null ? chamado.getSetor().name() : null,
                 chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
-                dto.titulo(),          
+                dto.titulo(), // Título mapeado          
                 chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
-                chamado.getTipoProblema(), 
+                chamado.getTipoProblema(), // Descrição mapeia para o tipoProblema do banco
                 chamado.getStatus().name(),
-                null,
-                chamado.getCriadoEm().format(formatter)
+                null, // tecnicoId (Começa nulo)
+                chamado.getCriadoEm().format(formatter), // criadoEm
+                null  // tecnicoNome (Começa nulo)
         );
     }
+
+    // 🌟 REQUISIÇÃO DO FINDALL (Preenchendo os 11 parâmetros perfeitamente)
     public List<ChamadoDTO> findAll() {
         return chamadoRepository.findAll().stream()
                 .map(chamado -> new ChamadoDTO(
@@ -68,17 +72,16 @@ public class ChamadoService {
                         chamado.getUsuarioNome(),    
                         chamado.getSetor() != null ? chamado.getSetor().name() : null,
                         chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
-                        chamado.getTipoProblema(),   
+                        chamado.getTipoProblema(), // titulo (pode usar o tipo do problema)  
                         chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
-                        chamado.getTipoProblema(), // Usa o tipoProblema aqui também para o texto do card
+                        chamado.getTipoProblema(), // descricao
                         chamado.getStatus() != null ? chamado.getStatus().name() : null, 
-                        chamado.getTecnico() != null ? chamado.getTecnico().getId() : null,
-                        chamado.getCriadoEm() != null ? chamado.getCriadoEm().format(formatter) : null
+                        chamado.getTecnico() != null ? chamado.getTecnico().getId() : null, // tecnicoId
+                        chamado.getCriadoEm() != null ? chamado.getCriadoEm().format(formatter) : null, // criadoEm
+                        chamado.getTecnico() != null ? chamado.getTecnico().getNome() : null // 🌟 tecnicoNome injetado no final!
                 ))
                 .collect(Collectors.toList());
     }
-
-    
 
     //  1. REGRA DE ASSUMIR (VALIDAÇÃO ESTRITA) - 
     public ChamadoDTO assumirChamado(Long chamadoId, String nomeTecnico) {
@@ -122,19 +125,20 @@ public class ChamadoService {
         return mapearParaDTO(chamado);
     }
 
-    //  4. MÉTODO AUXILIAR DE MAPEAMENTO
+ // 4. MÉTODO AUXILIAR DE MAPEAMENTO 
     private ChamadoDTO mapearParaDTO(Chamado chamado) {
         return new ChamadoDTO(
                 chamado.getId(),
                 chamado.getUsuarioNome(),
                 chamado.getSetor() != null ? chamado.getSetor().name() : null,
                 chamado.getEquipamento() != null ? chamado.getEquipamento().name() : null,
-                chamado.getTipoProblema(),
+                chamado.getTipoProblema(), // titulo
                 chamado.getPrioridade() != null ? chamado.getPrioridade().name() : null,
-                chamado.getTipoProblema(),
+                chamado.getTipoProblema(), // descricao
                 chamado.getStatus() != null ? chamado.getStatus().name() : null,
-                chamado.getTecnico() != null ? chamado.getTecnico().getId() : null, // Pega o ID da Entity
-                chamado.getCriadoEm() != null ? chamado.getCriadoEm().format(formatter) : null
+                chamado.getTecnico() != null ? chamado.getTecnico().getId() : null, // tecnicoId
+                chamado.getCriadoEm() != null ? chamado.getCriadoEm().format(formatter) : null, // criadoEm
+                chamado.getTecnico() != null ? chamado.getTecnico().getNome() : null // 🌟 11º parâmetro: tecnicoNome!
         );
     }
 }

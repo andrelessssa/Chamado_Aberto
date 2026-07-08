@@ -26,5 +26,6 @@ public record ChamadoDTO(
     
     String status,
     Long tecnicoId,
-    String criadoEm // Enviamos formatado para o rodapé do card 📅
+    String criadoEm, // Enviamos formatado para o rodapé do card 📅
+    String tecnicoNome
 ) {}
