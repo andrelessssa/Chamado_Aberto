@@ -70,6 +70,9 @@ async function carregarChamados() {
     chamados = await res.json();
     updateBadgeAndCount();
     
+    // 📺 COLOQUE AQUI! Atualiza o painel da TV sempre que novos dados chegarem
+    atualizarMuralTV();
+    
     const viewPainel = document.getElementById('view-painel');
     if (viewPainel && viewPainel.classList.contains('active')) {
       renderPainel();
@@ -459,6 +462,7 @@ function updateClock() {
 function controlarAbasPorPerfil() {
   const abaRelatorio = document.querySelector('.tab-btn[data-tab="relatorio"]');
   const abaEstatisticas = document.querySelector('.tab-btn[data-tab="estatisticas"]');
+  const abaMural = document.querySelector('.tab-btn[data-tab="mural"]');
   
   if (ehTecnico) {
     if (abaRelatorio) {
@@ -469,12 +473,62 @@ function controlarAbasPorPerfil() {
       abaEstatisticas.style.display = 'inline-flex';
       abaEstatisticas.style.alignItems = 'center';
     }
+    // 📺 🌟 AJUSTADO: Se for técnico, mostra a aba do mural na barra!
+    if (abaMural) {
+      abaMural.style.display = 'inline-flex';
+      abaMural.style.alignItems = 'center';
+    }
   } else {
     if (abaRelatorio) abaRelatorio.style.display = 'none';
     if (abaEstatisticas) abaEstatisticas.style.display = 'none';
+    // 📺 🌟 AJUSTADO: Se não for técnico, esconde a aba!
+    if (abaMural) abaMural.style.display = 'none';
+  }
+}
+function atualizarMuralTV() {
+  const txtNome = document.getElementById('mural-atual-nome');
+  const txtSetor = document.getElementById('mural-atual-setor');
+  const txtTecnico = document.getElementById('mural-atual-tecnico');
+  const listaEspera = document.getElementById('mural-lista-espera');
+  const badgeQtd = document.getElementById('mural-fila-qtd');
+
+  if (!txtNome || !listaEspera) return;
+
+  // 1. Acha o chamado mais recente que mudou para "ANDAMENTO" (Destaque da TV)
+  const chamadosEmAndamento = chamados.filter(c => c.status === 'ANDAMENTO');
+  
+  if (chamadosEmAndamento.length > 0) {
+    // Pega o último que foi assumido
+    const atual = chamadosEmAndamento[chamadosEmAndamento.length - 1];
+    txtNome.innerText = esc(atual.usuarioNome);
+    txtSetor.innerText = `SETOR: ${esc(atual.setor)}`;
+    txtTecnico.innerHTML = `⚙️ ${esc(atual.tecnicoNome || 'Técnico TI')}`;
+  } else {
+    // Se não tiver nenhum em andamento agora
+    txtNome.innerText = "Central Livre";
+    txtSetor.innerText = "ARSAL TI";
+    txtTecnico.innerText = "Aguardando novo chamado...";
   }
 
+  // 2. Filtra os chamados que estão "ABERTO" esperando na fila (Máximo 4 para caber na tela)
+  const chamadosAbertos = chamados.filter(c => c.status === 'ABERTO');
+  badgeQtd.innerText = chamadosAbertos.length;
 
+  if (chamadosAbertos.length === 0) {
+    listaEspera.innerHTML = '<div style="color: var(--txt-dim); text-align: center; padding: 20px; font-size:0.85rem;">📭 Fila zerada! Tudo em dia.</div>';
+    return;
+  }
+
+  // Renderiza a lista lateral com os nomes e setores estilo painel de senha
+  listaEspera.innerHTML = chamadosAbertos.slice(0, 4).map(c => `
+    <div style="background: rgba(255,255,255,0.02); padding: 14px 18px; border-radius: var(--rs); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <strong style="color: #fff; display: block; font-size: 0.95rem;">${esc(c.usuarioNome)}</strong>
+        <span style="font-size: 0.75rem; color: var(--txt-dim); font-family: var(--mono);">${esc(c.tipoProblema || 'Suporte')}</span>
+      </div>
+      <span class="badge badge-setor" style="font-size: 0.7rem; font-weight: bold;">${esc(c.setor)}</span>
+    </div>
+  `).join('');
 }
 
 // ============================================================

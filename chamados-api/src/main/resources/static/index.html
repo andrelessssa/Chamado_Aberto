@@ -51,6 +51,9 @@
       </svg>
       Relatório Mensal
     </button>
+    <button class="tab-btn" data-tab="mural">
+      <span>📺</span> Mural Chamados
+    </button>
   </div>
 
   <!-- VIEW 1 – ABRIR CHAMADO -->
@@ -204,6 +207,47 @@
       </div>
     </div>
   </div>
+<!-- VIEW 5 – painel 📊 -->
+
+<div id="view-mural" class="view">
+    <div class="form-hero" style="padding-bottom: 20px;">
+      <div class="label">Painel Público ARSAL</div>
+      <h1>Acompanhamento de Suporte TI</h1>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; max-width: 1200px; margin: 0 auto;">
+      
+      <div class="card" style="border-left: 6px solid var(--blue); background: var(--panel2); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 50px; text-align: center;">
+        <div style="font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.15em; color: var(--blue); text-transform: uppercase; margin-bottom: 15px; animation: blink 1.5s infinite;">
+          🔔 SENDO ATENDIDO AGORA
+        </div>
+        <h1 id="mural-atual-nome" style="font-size: 3.5rem; color: #fff; margin-bottom: 10px; font-weight: 800;">--</h1>
+        <div id="mural-atual-setor" class="badge badge-tipo" style="font-size: 1.2rem; padding: 6px 16px; margin-bottom: 30px;">SETOR: --</div>
+        
+        <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--r); width: 100%; border: 1px solid var(--border);">
+          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--txt-dim); display: block; text-transform: uppercase;">Técnico Responsável</span>
+          <h2 id="mural-atual-tecnico" style="color: var(--amber); margin-top: 5px; font-size: 1.8rem;">Aguardando...</h2>
+        </div>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--amber);">
+        <h3 style="color: #fff; margin-bottom: 20px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>⏳ Próximos Chamados</span>
+          <span id="mural-fila-qtd" class="tab-badge">0</span>
+        </h3>
+        
+        <div id="mural-lista-espera" style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="color: var(--txt-dim); text-align: center; padding: 20px;">Nenhum chamado na fila.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  </style>
+
   <!-- MODAL – ASSUMIR CHAMADO -->
   <div class="modal-overlay" id="modal-assumir">
     <div class="modal">
