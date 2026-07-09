@@ -7,21 +7,28 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: satell1tE
     ports:
-      - "5433:5432" # 
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - arsal-network
+    # 🍏 Garante que o Docker sabe quando o banco está realmente pronto para receber dados
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chamadoaberto"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api-chamados:
     build: .
     container_name: arsal-api
     ports:
       - "8081:8081"
+    # 🛑 O segredo está aqui: A API agora ESPERA o banco passar no teste de saúde!
     depends_on:
-      - db-postgres
+      db-postgres:
+        condition: service_healthy
     environment:
-      # Aqui dizemos para a API procurar o container do banco na porta interna dele (5432)
       SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/chamadoaberto
     networks:
       - arsal-network
