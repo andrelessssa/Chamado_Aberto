@@ -40,17 +40,18 @@
       <span class="tab-badge" id="badge-abertos">0</span>
     </button>
 
-    <button class="tab-btn" data-tab="relatorio">
+    <button class="tab-btn" data-tab="gerenciar">
       <span>💼</span> Gerenciar Técnicos
     </button>
 
-    <button class="tab-btn" data-tab="estatisticas">
+    <button class="tab-btn" data-tab="relatorio">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
         <rect x=".5" y=".5" width="12" height="12" rx="2.5" stroke="currentColor"/>
         <path d="M3 9.5l2.5-3L8 8l2.5-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       Relatório Mensal
     </button>
+    
     <button class="tab-btn" data-tab="mural">
       <span>📺</span> Mural Chamados
     </button>
@@ -133,16 +134,14 @@
     <div class="chamados-list" id="chamados-list"></div>
   </div>
 
-  <!-- VIEW 3 – GERENCIAR TÉCNICOS 💼 -->
-  <!-- VIEW 3 – GERENCIAR TÉCNICOS 💼 -->
-  <div id="view-relatorio" class="view">
+  
+  <div id="view-gerenciar" class="view">
     <div class="form-hero">
       <div class="label">Equipe de TI</div>
       <h1>Gerenciamento de Técnicos</h1>
       <p>Adicione ou remova os técnicos autorizados a assumir chamados na ARSAL.</p>
     </div>
 
-    <!-- Usando a classe .card nativa do seu CSS para ficar igual ao formulário! -->
     <div class="card">
       <div class="form-grid" style="margin-bottom: 30px; align-items: flex-end;">
         <div class="field">
@@ -150,60 +149,79 @@
           <input type="text" id="f-nome-tecnico" placeholder="Ex: André Lessa">
         </div>
         <div class="field">
-          <!-- Usando o botão submit padrão para o cadastro -->
           <button id="btn-cadastrar-tecnico" class="btn-submit" style="margin-top: 0; padding: 12px;">+ Adicionar Técnico</button>
         </div>
       </div>
 
       <div class="field">
         <label>Técnicos Ativos no Banco</label>
-        <div id="tec-tbody" class="chamados-list" style="margin-top: 15px;">
-          </div>
-      </div>
-        
+        <div id="tec-tbody" class="chamados-list" style="margin-top: 15px;"></div>
       </div>
     </div>
   </div>
 
-  <!-- VIEW 4 – RELATÓRIO MENSAL 📊 -->
-  <div id="view-estatisticas" class="view">
-    <div class="form-hero">
-      <div class="label">Estatísticas</div>
-      <h1>Produtividade em Tempo Real</h1>
-      <p>Indicadores gerais e volumetria de chamados da central de suporte da ARSAL.</p>
+  <div id="view-relatorio" class="view">
+    <div class="form-hero" style="padding-bottom: 15px;">
+      <div class="label">Gestão Estratégica TI</div>
+      <h1>Relatórios e Agrupamentos</h1>
+    </div>
+<div class="card" style="margin-bottom: 20px; border-top: 3px solid var(--blue);">
+      <div class="form-grid" style="gap: 15px;">
+        
+        <div class="field">
+          <label>📅 Mês</label>
+          <select id="rep-mes" class="input-field" onchange="gerarRelatorioDinamico()">
+            <option value="TODOS">Todos os Meses</option>
+            <option value="01">Janeiro</option>
+            <option value="02">Fevereiro</option>
+            <option value="03">Março</option>
+            <option value="04">Abril</option>
+            <option value="05">Maio</option>
+            <option value="06">Junho</option>
+            <option value="07">Julho</option>
+            <option value="08">Agosto</option>
+            <option value="09">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>📆 Ano</label>
+          <select id="rep-ano" class="input-field" onchange="gerarRelatorioDinamico()">
+            <option value="TODOS">Todos os Anos</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>🏢 Filtrar por Setor</label>
+          <select id="rep-setor" class="input-field" onchange="gerarRelatorioDinamico()">
+            <option value="TODOS">Todos os Setores</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>💻 Filtrar por Equipamento</label>
+          <select id="rep-equip" class="input-field" onchange="gerarRelatorioDinamico()">
+            <option value="TODOS">Todos os Equipamentos</option>
+          </select>
+        </div>
+
+      </div>
     </div>
 
-    <div class="card">
-      <!-- Grid de Indicadores usando o form-grid para alinhar em colunas -->
-      <div class="form-grid" style="margin-bottom: 30px;">
-        <div class="field" style="background: var(--panel2); padding: 20px; border-radius: var(--rs); text-align: center; border: 1px solid var(--border);">
-          <label style="font-size: 0.65rem;">Total Geral</label>
-          <h1 id="rep-total" style="color: var(--txt); margin-top: 5px; font-size: 2rem;">0</h1>
-        </div>
-
-        <div class="field" style="background: var(--rose-dim); padding: 20px; border-radius: var(--rs); text-align: center; border: 1px solid var(--rose);">
-          <label style="color: var(--rose); font-size: 0.65rem;">Abertos</label>
-          <h1 id="rep-abertos" style="color: var(--rose); margin-top: 5px; font-size: 2rem;">0</h1>
-        </div>
-
-        <div class="field" style="background: var(--amber-dim); padding: 20px; border-radius: var(--rs); text-align: center; border: 1px solid var(--amber);">
-          <label style="color: var(--amber); font-size: 0.65rem;">Em Andamento</label>
-          <h1 id="rep-andamento" style="color: var(--amber); margin-top: 5px; font-size: 2rem;">0</h1>
-        </div>
-
-        <div class="field" style="background: var(--green-dim); padding: 20px; border-radius: var(--rs); text-align: center; border: 1px solid var(--green);">
-          <label style="color: var(--green); font-size: 0.65rem;">Resolvidos</label>
-          <h1 id="rep-fechados" style="color: var(--green); margin-top: 5px; font-size: 2rem;">0</h1>
-        </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+      <div class="card" style="border-left: 4px solid var(--blue);">
+        <h3 style="color: #fff; margin-bottom: 15px;">🏢 Volumetria por Setor</h3>
+        <div id="rep-lista-setores" style="display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
 
-      <div class="field">
-        <label>Volumetria por Criticidade</label>
-        <div style="background: var(--panel2); padding: 20px; border-radius: var(--rs); border: 1px solid var(--border); margin-top: 10px;">
-          <p style="color: var(--txt); display: flex; justify-content: space-between; margin: 10px 0; font-family: var(--mono); font-size: 0.85rem;">🔴 Prioridade Alta (Parou de trabalhar): <span id="prio-alta" style="color: var(--rose); font-weight: bold;">0</span></p>
-          <p style="color: var(--txt); display: flex; justify-content: space-between; margin: 10px 0; font-family: var(--mono); font-size: 0.85rem;">🟡 Prioridade Média (Atender em breve): <span id="prio-media" style="color: var(--amber); font-weight: bold;">0</span></p>
-          <p style="color: var(--txt); display: flex; justify-content: space-between; margin: 10px 0; font-family: var(--mono); font-size: 0.85rem;">🟢 Prioridade Baixa (Pode esperar): <span id="prio-baixa" style="color: var(--green); font-weight: bold;">0</span></p>
-        </div>
+      <div class="card" style="border-left: 4px solid var(--amber);">
+        <h3 style="color: #fff; margin-bottom: 15px;">💻 Volumetria por Equipamento</h3>
+        <div id="rep-lista-equips" style="display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
     </div>
   </div>
@@ -268,6 +286,6 @@
   <div class="toast-wrap" id="toast-wrap"></div>
 
   <!-- Script da lógica externa (Atualizado para forçar cache!) -->
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

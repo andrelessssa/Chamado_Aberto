@@ -16,7 +16,7 @@ let selectedPrio = 'MEDIA';
 // ============================================================
 
 // GET - Buscar setores dinâmicos do Enum do Java
-async function carregarSetoresDoEnum() {
+async function carregarSetoresDoEnum() { 
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/setores`);
     if (!res.ok) throw new Error('Erro ao buscar setores');
@@ -70,8 +70,23 @@ async function carregarChamados() {
     chamados = await res.json();
     updateBadgeAndCount();
     
-    // 📺 COLOQUE AQUI! Atualiza o painel da TV sempre que novos dados chegarem
+    // 📺 Atualiza o painel da TV sempre que novos dados chegarem
     atualizarMuralTV();
+    
+    // 📊 Preenche os filtros e roda o agrupamento do Relatório Dinâmico!
+    if (typeof gerarRelatorioDinamico === 'function') {
+       const selS = document.getElementById('rep-setor');
+       if (selS && selS.options.length <= 1) {
+          const setoresUnicos = [...new Set(chamados.map(c => c.setor).filter(Boolean))];
+          setoresUnicos.forEach(s => selS.add(new Option(s, s)));
+       }
+       const selE = document.getElementById('rep-equip');
+       if (selE && selE.options.length <= 1) {
+          const equipsUnicos = [...new Set(chamados.map(c => c.equipmento || c.equipamento).filter(Boolean))];
+          equipsUnicos.forEach(e => selE.add(new Option(e, e)));
+       }
+       gerarRelatorioDinamico();
+    }
     
     const viewPainel = document.getElementById('view-painel');
     if (viewPainel && viewPainel.classList.contains('active')) {
@@ -84,14 +99,13 @@ async function carregarChamados() {
 }
 
 // GET - Listar técnicos autorizados do banco
-// 🌟 ATUALIZADO: Buscar técnicos na rota correta do seu novo Controller
 async function carregarTecnicos() {
   try {
-    const res = await fetch(`${API_BASE_URL}/tecnicos`); // Rota corrigida de /chamados/tecnicos para /tecnicos
+    const res = await fetch(`${API_BASE_URL}/tecnicos`);
     if (!res.ok) throw new Error('Erro ao buscar técnicos');
     tecnicos = await res.json();
     preencherSelectTecnicos();
-    renderTabelaTecnicos(); // Atualiza a aba de gerenciamento também!
+    renderTabelaTecnicos();
   } catch (err) {
     console.error('Erro ao conectar com técnicos:', err);
   }
@@ -109,8 +123,8 @@ async function apiCadastrarTecnico(nome) {
     if (!res.ok) throw new Error('Erro ao cadastrar técnico');
     
     toast('Técnico cadastrado com sucesso! 🛡️');
-    document.getElementById('f-nome-tecnico').value = ''; // Limpa o input
-    await carregarTecnicos(); // Atualiza as listas na tela
+    document.getElementById('f-nome-tecnico').value = '';
+    await carregarTecnicos();
   } catch (err) {
     console.error(err);
     toast('Erro ao cadastrar técnico.', true);
@@ -129,25 +143,22 @@ async function apiDeletarTecnico(id) {
     if (!res.ok) throw new Error('Erro ao deletar técnico');
     
     toast('Técnico removido com sucesso.');
-    await carregarTecnicos(); // Atualiza a tela
+    await carregarTecnicos();
   } catch (err) {
     console.error(err);
     toast('Erro ao remover técnico ou ele está vinculado a um chamado.', true);
   }
 }
 
-// POST - Criar novo chamado (COM TRATAMENTO DE ERRO DE VALIDAÇÃO 🩺)
+// POST - Criar novo chamado
 async function criarChamado(chamadoDTO) {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(chamadoDTO)
     });
 
-    // 🌟 Se o Java recusar por falta de dados (Status 400 ou 500 interno de validação)
     if (res.status === 400 || res.status === 500) {
       toast('Por favor, preencha todos os campos obrigatórios do formulário!', true);
       return;
@@ -160,7 +171,6 @@ async function criarChamado(chamadoDTO) {
     resetForm();
   } catch (err) {
     console.error(err);
-    // 🌟 Só cai aqui se a rede cair ou o servidor estiver totalmente desligado
     toast('Falha na conexão: Verifique se está conectado no Wi-Fi da ARSAL.', true);
   }
 }
@@ -170,9 +180,7 @@ async function apiAssumirChamado(id, nomeTecnico) {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/${id}/assumir`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'text/plain'
-      },
+      headers: { 'Content-Type': 'text/plain' },
       body: `"${nomeTecnico}"`
     });
     if (!res.ok) {
@@ -189,9 +197,7 @@ async function apiAssumirChamado(id, nomeTecnico) {
 // PUT - Fechar Chamado
 async function apiFecharChamado(id) {
   try {
-    const res = await fetch(`${API_BASE_URL}/chamados/${id}/fechar`, {
-      method: 'PUT'
-    });
+    const res = await fetch(`${API_BASE_URL}/chamados/${id}/fechar`, { method: 'PUT' });
     if (!res.ok) throw new Error();
     toast('Chamado marcado como resolvido ✓');
     carregarChamados();
@@ -203,9 +209,7 @@ async function apiFecharChamado(id) {
 // PUT - Reabrir Chamado
 async function apiReabrirChamado(id) {
   try {
-    const res = await fetch(`${API_BASE_URL}/chamados/${id}/reabrir`, {
-      method: 'PUT'
-    });
+    const res = await fetch(`${API_BASE_URL}/chamados/${id}/reabrir`, { method: 'PUT' });
     if (!res.ok) throw new Error();
     toast('Chamado reaberto e devolvido para a fila.', true);
     carregarChamados();
@@ -222,14 +226,31 @@ function renderPainel() {
   const empty = document.getElementById('empty-state');
   if (!list || !empty) return;
 
-  let data = chamados;
+  // 🗓️ Pega a data de hoje no formato DD/MM/AAAA para comparar
+  const hojeTexto = new Date().toLocaleDateString('pt-BR');
+
+  // 🧹 FILTRAGEM INTELIGENTE: Remove os fechados antigos da fila visual
+  let data = chamados.filter(c => {
+    if (c.status === 'FECHADO') {
+      // Verifica se a string da data do chamado contém a data de hoje
+      let dataCriacao = c.criadoEm || "";
+      return dataCriacao.includes(hojeTexto);
+    }
+    // Se estiver ABERTO ou ANDAMENTO, mantém sempre na tela!
+    return true;
+  });
+
+  // Aplica o filtro dos botões do topo (Todos, Abertos, Em andamento, Fechados)
   if (filterActive !== 'todos') {
-    data = chamados.filter(c => c.status === filterActive);
+    data = data.filter(c => c.status === filterActive);
   }
 
   if (data.length === 0) {
-    list.innerHTML = ''; empty.style.display = 'block'; return;
+    list.innerHTML = ''; 
+    empty.style.display = 'block'; 
+    return;
   }
+  
   empty.style.display = 'none';
   list.innerHTML = '';
 
@@ -237,10 +258,6 @@ function renderPainel() {
     const div = document.createElement('div');
     div.className = `chamado-card prio-${c.prioridade} status-${c.status}`;
     
-    // 🌟 ADICIONE ISSO AQUI PARA RASTREAR NO NAVEGADOR:
-console.log("Chamado vindo do Java:", c);
-
-    // 🌟 AJUSTADO: Usando chamado.tipoProblema para exibir o texto que veio do banco!
     div.innerHTML = `
     <div class="card-main">
       <h3>${esc(c.usuarioNome)} — Setor: ${esc(c.setor)}</h3>
@@ -273,7 +290,6 @@ console.log("Chamado vindo do Java:", c);
     list.appendChild(div);
   });
 }
-
 function preencherSelectTecnicos() {
   const select = document.getElementById('m-tecnico-select');
   if (!select) return;
@@ -291,7 +307,7 @@ function preencherSelectTecnicos() {
 }
 
 function renderTabelaTecnicos() {
-  const container = document.getElementById('tec-tbody'); // Mantemos o mesmo ID para não quebrar o HTML
+  const container = document.getElementById('tec-tbody');
   if (!container) return;
   
   if (tecnicos.length === 0) {
@@ -299,7 +315,6 @@ function renderTabelaTecnicos() {
     return;
   }
   
-  // 🌟 Renderiza como uma lista de cartões idênticos ao do chamado!
   container.innerHTML = tecnicos.map(t => `
     <div class="chamado-card" style="border-left-color: var(--amber); margin-bottom: 12px; grid-template-columns: 1fr auto;">
       <div class="card-main" style="display: flex; align-items: center;">
@@ -318,6 +333,7 @@ function renderTabelaTecnicos() {
     </div>
   `).join('');
 }
+
 function updateBadgeAndCount() {
   const abertos = chamados.filter(c => c.status === 'ABERTO').length;
   const badge = document.getElementById('badge-abertos');
@@ -400,12 +416,32 @@ document.querySelectorAll('.filter-btn').forEach(b => {
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    const tabName = btn.getAttribute('data-tab') || btn.dataset.tab;
+    const targetView = document.getElementById('view-' + tabName);
+    
+    if (!targetView) {
+      console.error("Erro: Não existe nenhuma div com o ID 'view-" + tabName + "' no seu index.html");
+      return;
+    }
+
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    
     btn.classList.add('active');
-    document.getElementById('view-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'painel') renderPainel();
-    if (btn.dataset.tab === 'relatorio') carregarTecnicos();
+    targetView.classList.add('active');
+    
+    if (tabName === 'painel') {
+      if (typeof renderPainel === 'function') renderPainel();
+    }
+    
+   if (tabName === 'relatorio') {
+      if (typeof carregarTecnicos === 'function') carregarTecnicos();
+      if (typeof gerarRelatorioDinamico === 'function') gerarRelatorioDinamico();
+    }
+
+    if (tabName === 'mural') {
+      if (typeof atualizarMuralTV === 'function') atualizarMuralTV();
+    }
   });
 });
 
@@ -461,7 +497,7 @@ function updateClock() {
 
 function controlarAbasPorPerfil() {
   const abaRelatorio = document.querySelector('.tab-btn[data-tab="relatorio"]');
-  const abaEstatisticas = document.querySelector('.tab-btn[data-tab="estatisticas"]');
+  const abaGerenciar = document.querySelector('.tab-btn[data-tab="gerenciar"]');
   const abaMural = document.querySelector('.tab-btn[data-tab="mural"]');
   
   if (ehTecnico) {
@@ -469,22 +505,22 @@ function controlarAbasPorPerfil() {
       abaRelatorio.style.display = 'inline-flex';
       abaRelatorio.style.alignItems = 'center';
     }
-    if (abaEstatisticas) {
-      abaEstatisticas.style.display = 'inline-flex';
-      abaEstatisticas.style.alignItems = 'center';
+    if (abaGerenciar) {
+      abaGerenciar.style.display = 'inline-flex';
+      abaGerenciar.style.alignItems = 'center';
     }
-    // 📺 🌟 AJUSTADO: Se for técnico, mostra a aba do mural na barra!
     if (abaMural) {
       abaMural.style.display = 'inline-flex';
       abaMural.style.alignItems = 'center';
     }
   } else {
     if (abaRelatorio) abaRelatorio.style.display = 'none';
-    if (abaEstatisticas) abaEstatisticas.style.display = 'none';
-    // 📺 🌟 AJUSTADO: Se não for técnico, esconde a aba!
+    if (abaGerenciar) abaGerenciar.style.display = 'none';
     if (abaMural) abaMural.style.display = 'none';
   }
+
 }
+
 function atualizarMuralTV() {
   const txtNome = document.getElementById('mural-atual-nome');
   const txtSetor = document.getElementById('mural-atual-setor');
@@ -494,23 +530,19 @@ function atualizarMuralTV() {
 
   if (!txtNome || !listaEspera) return;
 
-  // 1. Acha o chamado mais recente que mudou para "ANDAMENTO" (Destaque da TV)
   const chamadosEmAndamento = chamados.filter(c => c.status === 'ANDAMENTO');
   
   if (chamadosEmAndamento.length > 0) {
-    // Pega o último que foi assumido
     const atual = chamadosEmAndamento[chamadosEmAndamento.length - 1];
     txtNome.innerText = esc(atual.usuarioNome);
     txtSetor.innerText = `SETOR: ${esc(atual.setor)}`;
     txtTecnico.innerHTML = `⚙️ ${esc(atual.tecnicoNome || 'Técnico TI')}`;
   } else {
-    // Se não tiver nenhum em andamento agora
     txtNome.innerText = "Central Livre";
     txtSetor.innerText = "ARSAL TI";
     txtTecnico.innerText = "Aguardando novo chamado...";
   }
 
-  // 2. Filtra os chamados que estão "ABERTO" esperando na fila (Máximo 4 para caber na tela)
   const chamadosAbertos = chamados.filter(c => c.status === 'ABERTO');
   badgeQtd.innerText = chamadosAbertos.length;
 
@@ -519,7 +551,6 @@ function atualizarMuralTV() {
     return;
   }
 
-  // Renderiza a lista lateral com os nomes e setores estilo painel de senha
   listaEspera.innerHTML = chamadosAbertos.slice(0, 4).map(c => `
     <div style="background: rgba(255,255,255,0.02); padding: 14px 18px; border-radius: var(--rs); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -529,6 +560,82 @@ function atualizarMuralTV() {
       <span class="badge badge-setor" style="font-size: 0.7rem; font-weight: bold;">${esc(c.setor)}</span>
     </div>
   `).join('');
+} // 🌟 FECHAMENTO DA TV REPARADO AQUI!
+
+function gerarRelatorioDinamico() {
+  try {
+    const selMes = document.getElementById('rep-mes')?.value || 'TODOS';
+    const selAno = document.getElementById('rep-ano')?.value || 'TODOS';
+    const selSetor = document.getElementById('rep-setor')?.value || 'TODOS';
+    const selEquip = document.getElementById('rep-equip')?.value || 'TODOS';
+
+    const listaSetoresDiv = document.getElementById('rep-lista-setores');
+    const listaEquipsDiv = document.getElementById('rep-lista-equips');
+
+    if (!listaSetoresDiv || !listaEquipsDiv) return;
+
+    // 1. Filtrar o array de chamados por Período, Setor e Equipamento
+    const chamadosFiltrados = (chamados || []).filter(c => {
+      let dataTexto = c.criadoEm || "";
+      let mesChamado = "—";
+      let anoChamado = "—";
+
+      if (dataTexto.includes('/')) {
+        const partes = dataTexto.split('/');
+        mesChamado = partes[1] ? partes[1].trim() : "—"; 
+        if (partes[2]) anoChamado = partes[2].split(',')[0].trim(); 
+      }
+
+      const bateMes = (selMes === 'TODOS' || mesChamado === selMes);
+      const bateAno = (selAno === 'TODOS' || anoChamado === selAno);
+      const bateSetor = (selSetor === 'TODOS' || c.setor === selSetor);
+      const bateEquip = (selEquip === 'TODOS' || (c.equipamento || c.equipmento) === selEquip);
+
+      return bateMes && bateAno && bateSetor && bateEquip;
+    });
+
+    // 2. Criar os dicionários de agrupamento
+    const agrupadoSetor = {};
+    const agrupadoEquip = {};
+
+    chamadosFiltrados.forEach(c => {
+      const s = c.setor || "NÃO INFORMADO";
+      const e = c.equipamento || c.equipmento || "NÃO INFORMADO";
+      agrupadoSetor[s] = (agrupadoSetor[s] || 0) + 1;
+      agrupadoEquip[e] = (agrupadoEquip[e] || 0) + 1;
+    });
+
+    // 🏆 3. Ordenar Setores por quantidade decrescente (O maior em primeiro)
+    const setoresOrdenados = Object.entries(agrupadoSetor).sort((a, b) => b[1] - a[1]);
+
+    if (setoresOrdenados.length === 0) {
+      listaSetoresDiv.innerHTML = '<div style="color:var(--txt-dim); font-size:0.85rem; text-align:center; padding:10px;">Nenhum registro encontrado.</div>';
+    } else {
+      listaSetoresDiv.innerHTML = setoresOrdenados.map(([nome, qtd]) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); padding:10px; border-radius:var(--rs); border:1px solid var(--border);">
+          <span style="color:#fff; font-weight:500;">🏢 ${nome}</span>
+          <span class="tab-badge" style="background:var(--blue);">${qtd}</span>
+        </div>
+      `).join('');
+    }
+
+    // 🏆 4. Ordenar Equipamentos por quantidade decrescente (O campeão em primeiro)
+    const equipsOrdenados = Object.entries(agrupadoEquip).sort((a, b) => b[1] - a[1]);
+
+    if (equipsOrdenados.length === 0) {
+      listaEquipsDiv.innerHTML = '<div style="color:var(--txt-dim); font-size:0.85rem; text-align:center; padding:10px;">Nenhum registro encontrado.</div>';
+    } else {
+      listaEquipsDiv.innerHTML = equipsOrdenados.map(([nome, qtd]) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); padding:10px; border-radius:var(--rs); border:1px solid var(--border);">
+          <span style="color:#fff; font-weight:500;">💻 ${nome}</span>
+          <span class="tab-badge" style="background:var(--amber); color:#000;">${qtd}</span>
+        </div>
+      `).join('');
+    }
+
+  } catch (error) {
+    console.error("Erro interno no relatório dinâmico:", error);
+  }
 }
 
 // ============================================================

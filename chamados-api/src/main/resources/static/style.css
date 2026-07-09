@@ -158,3 +158,21 @@ body{
   -webkit-appearance: auto !important;
   -moz-appearance: auto !important;
 }
+/* 🎛️ Força os seletores do relatório a seguirem o padrão Dark Modern da ARSAL */
+.input-field select, select.input-field {
+    background-color: var(--panel) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--border) !important;
+    padding: 10px 14px !important;
+    border-radius: var(--rs) !important;
+    width: 100% !important;
+    outline: none !important;
+    font-size: 0.9rem !important;
+    /* 🧹 REMOVIDO: Tiramos o background-image interno para eliminar a seta duplicada! */
+}
+
+/* Garante que as opções de dentro do select fiquem com o fundo escuro ao clicar */
+.input-field select option, select.input-field option {
+    background-color: var(--bg) !important;
+    color: #ffffff !important;
+}
