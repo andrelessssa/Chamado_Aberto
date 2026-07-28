@@ -1,5 +1,5 @@
 // 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT (REDE LOCAL)
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = 'http://192.168.1.148:8081/api';
 
 // 🔒 CONTROLE DE ACESSO: Verifica se na URL tem "?perfil=tecnico"
 const urlParams = new URLSearchParams(window.location.search);
@@ -16,7 +16,7 @@ let selectedPrio = 'MEDIA';
 // ============================================================
 
 // GET - Buscar setores dinâmicos do Enum do Java
-async function carregarSetoresDoEnum() { 
+async function carregarSetoresDoEnum() {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados/setores`);
     if (!res.ok) throw new Error('Erro ao buscar setores');
@@ -51,7 +51,7 @@ async function carregarEquipamentosDoEnum() {
       selectEquip.innerHTML = '<option value="">Selecione o equipamento...</option>';
       listaEquipamentos.forEach(equip => {
         const option = document.createElement('option');
-        option.value = equip; 
+        option.value = equip;
         option.textContent = equip.charAt(0) + equip.slice(1).toLowerCase();
         selectEquip.appendChild(option);
       });
@@ -66,35 +66,35 @@ async function carregarChamados() {
   try {
     const res = await fetch(`${API_BASE_URL}/chamados`);
     if (!res.ok) throw new Error('Erro ao buscar chamados');
-    
+
     chamados = await res.json();
     updateBadgeAndCount();
-    
+
     // 📺 Atualiza o painel da TV sempre que novos dados chegarem
     atualizarMuralTV();
-    
+
     // 📊 Preenche os filtros e roda o agrupamento do Relatório Dinâmico!
     if (typeof gerarRelatorioDinamico === 'function') {
-       const selS = document.getElementById('rep-setor');
-       if (selS && selS.options.length <= 1) {
-          const setoresUnicos = [...new Set(chamados.map(c => c.setor).filter(Boolean))];
-          setoresUnicos.forEach(s => selS.add(new Option(s, s)));
-       }
-       const selE = document.getElementById('rep-equip');
-       if (selE && selE.options.length <= 1) {
-          const equipsUnicos = [...new Set(chamados.map(c => c.equipmento || c.equipamento).filter(Boolean))];
-          equipsUnicos.forEach(e => selE.add(new Option(e, e)));
-       }
-       gerarRelatorioDinamico();
+      const selS = document.getElementById('rep-setor');
+      if (selS && selS.options.length <= 1) {
+        const setoresUnicos = [...new Set(chamados.map(c => c.setor).filter(Boolean))];
+        setoresUnicos.forEach(s => selS.add(new Option(s, s)));
+      }
+      const selE = document.getElementById('rep-equip');
+      if (selE && selE.options.length <= 1) {
+        const equipsUnicos = [...new Set(chamados.map(c => c.equipmento || c.equipamento).filter(Boolean))];
+        equipsUnicos.forEach(e => selE.add(new Option(e, e)));
+      }
+      gerarRelatorioDinamico();
     }
-    
+
     const viewPainel = document.getElementById('view-painel');
     if (viewPainel && viewPainel.classList.contains('active')) {
       renderPainel();
     }
   } catch (err) {
     console.error(err);
-    toast('Você não está conectado na rede da ARSAL ⚠', true);
+    toast('Você não está conectado na rede  ⚠', true);
   }
 }
 
@@ -119,9 +119,9 @@ async function apiCadastrarTecnico(nome) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nome: nome })
     });
-    
+
     if (!res.ok) throw new Error('Erro ao cadastrar técnico');
-    
+
     toast('Técnico cadastrado com sucesso! 🛡️');
     document.getElementById('f-nome-tecnico').value = '';
     await carregarTecnicos();
@@ -134,14 +134,14 @@ async function apiCadastrarTecnico(nome) {
 // ❌ DELETE - Remover técnico do banco pelo ID
 async function apiDeletarTecnico(id) {
   if (!confirm('Tem certeza que deseja remover este técnico do sistema?')) return;
-  
+
   try {
     const res = await fetch(`${API_BASE_URL}/tecnicos/${id}`, {
       method: 'DELETE'
     });
-    
+
     if (!res.ok) throw new Error('Erro ao deletar técnico');
-    
+
     toast('Técnico removido com sucesso.');
     await carregarTecnicos();
   } catch (err) {
@@ -246,18 +246,18 @@ function renderPainel() {
   }
 
   if (data.length === 0) {
-    list.innerHTML = ''; 
-    empty.style.display = 'block'; 
+    list.innerHTML = '';
+    empty.style.display = 'block';
     return;
   }
-  
+
   empty.style.display = 'none';
   list.innerHTML = '';
 
   data.forEach(c => {
     const div = document.createElement('div');
     div.className = `chamado-card prio-${c.prioridade} status-${c.status}`;
-    
+
     div.innerHTML = `
     <div class="card-main">
       <h3>${esc(c.usuarioNome)} — Setor: ${esc(c.setor)}</h3>
@@ -271,12 +271,12 @@ function renderPainel() {
       <div class="card-desc">${esc(c.tipoProblema)}</div> 
      <div class="card-footer">
         <span class="card-ts">Aberto em: ${c.criadoEm || '--'}</span>
-        ${c.status === 'FECHADO' 
-          ? `<span class="card-tecnico" style="color: var(--green);">✅ Finalizado por: <strong>${esc(c.tecnico?.nome || c.tecnicoNome || 'TI ARSAL')}</strong></span>`
-          : (c.tecnico || c.tecnicoNome)
-            ? `<span class="card-tecnico">Responsável: <strong>${esc(c.tecnico?.nome || c.tecnicoNome)}</strong></span>` 
-            : '<span class="card-tecnico aguardando">👤 Aguardando Técnico...</span>'
-        }
+        ${c.status === 'FECHADO'
+        ? `<span class="card-tecnico" style="color: var(--green);">✅ Finalizado por: <strong>${esc(c.tecnico?.nome || c.tecnicoNome || 'TI ARSAL')}</strong></span>`
+        : (c.tecnico || c.tecnicoNome)
+          ? `<span class="card-tecnico">Responsável: <strong>${esc(c.tecnico?.nome || c.tecnicoNome)}</strong></span>`
+          : '<span class="card-tecnico aguardando">👤 Aguardando Técnico...</span>'
+      }
       </div>
     </div>
     ${ehTecnico ? `
@@ -299,7 +299,7 @@ function preencherSelectTecnicos() {
     return;
   }
 
-  select.innerHTML = '<option value="">Selecione seu nome...</option>' + 
+  select.innerHTML = '<option value="">Selecione seu nome...</option>' +
     tecnicos.map(t => {
       const nomeVisivel = t.nome || (typeof t === 'string' ? t : JSON.stringify(t));
       return `<option value="${nomeVisivel}">${nomeVisivel}</option>`;
@@ -309,12 +309,12 @@ function preencherSelectTecnicos() {
 function renderTabelaTecnicos() {
   const container = document.getElementById('tec-tbody');
   if (!container) return;
-  
+
   if (tecnicos.length === 0) {
     container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--txt-dim); grid-column: 1/-1;">Nenhum técnico cadastrado no banco.</div>';
     return;
   }
-  
+
   container.innerHTML = tecnicos.map(t => `
     <div class="chamado-card" style="border-left-color: var(--amber); margin-bottom: 12px; grid-template-columns: 1fr auto;">
       <div class="card-main" style="display: flex; align-items: center;">
@@ -338,8 +338,8 @@ function updateBadgeAndCount() {
   const abertos = chamados.filter(c => c.status === 'ABERTO').length;
   const badge = document.getElementById('badge-abertos');
   const live = document.getElementById('live-count');
-  if(badge) badge.textContent = abertos;
-  if(live) live.textContent = abertos;
+  if (badge) badge.textContent = abertos;
+  if (live) live.textContent = abertos;
 }
 
 // ============================================================
@@ -351,7 +351,7 @@ if (btnEnviar) {
   btnEnviar.addEventListener('click', () => {
     const dto = {
       usuarioNome: document.getElementById('f-nome').value.trim(),
-      setor: document.getElementById('f-setor').value, 
+      setor: document.getElementById('f-setor').value,
       equipamento: document.getElementById('f-equip').value,
       titulo: document.getElementById('f-tipo').value.trim(),
       prioridade: selectedPrio,
@@ -418,7 +418,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tabName = btn.getAttribute('data-tab') || btn.dataset.tab;
     const targetView = document.getElementById('view-' + tabName);
-    
+
     if (!targetView) {
       console.error("Erro: Não existe nenhuma div com o ID 'view-" + tabName + "' no seu index.html");
       return;
@@ -426,15 +426,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    
+
     btn.classList.add('active');
     targetView.classList.add('active');
-    
+
     if (tabName === 'painel') {
       if (typeof renderPainel === 'function') renderPainel();
     }
-    
-   if (tabName === 'relatorio') {
+
+    if (tabName === 'relatorio') {
       if (typeof carregarTecnicos === 'function') carregarTecnicos();
       if (typeof gerarRelatorioDinamico === 'function') gerarRelatorioDinamico();
     }
@@ -449,7 +449,7 @@ function esc(s) { return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&g
 
 function toast(msg, warn = false) {
   const w = document.getElementById('toast-wrap');
-  if(!w) return;
+  if (!w) return;
   const el = document.createElement('div');
   el.className = 'toast' + (warn ? ' warn' : '');
   el.innerHTML = `<span class="toast-icon">${warn ? '⚠' : '✓'}</span>${msg}`;
@@ -482,24 +482,24 @@ if (btnModoTecnico) {
 function resetForm() {
   ['f-nome', 'f-desc', 'f-tipo'].forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.value = '';
+    if (el) el.value = '';
   });
   const equip = document.getElementById('f-equip');
   const setor = document.getElementById('f-setor');
-  if(equip) equip.value = '';
-  if(setor) setor.value = '';
+  if (equip) equip.value = '';
+  if (setor) setor.value = '';
 }
 
-function updateClock() { 
+function updateClock() {
   const clk = document.getElementById('live-clock');
-  if(clk) clk.textContent = new Date().toLocaleTimeString('pt-BR'); 
+  if (clk) clk.textContent = new Date().toLocaleTimeString('pt-BR');
 }
 
 function controlarAbasPorPerfil() {
   const abaRelatorio = document.querySelector('.tab-btn[data-tab="relatorio"]');
   const abaGerenciar = document.querySelector('.tab-btn[data-tab="gerenciar"]');
   const abaMural = document.querySelector('.tab-btn[data-tab="mural"]');
-  
+
   if (ehTecnico) {
     if (abaRelatorio) {
       abaRelatorio.style.display = 'inline-flex';
@@ -531,7 +531,7 @@ function atualizarMuralTV() {
   if (!txtNome || !listaEspera) return;
 
   const chamadosEmAndamento = chamados.filter(c => c.status === 'ANDAMENTO');
-  
+
   if (chamadosEmAndamento.length > 0) {
     const atual = chamadosEmAndamento[chamadosEmAndamento.length - 1];
     txtNome.innerText = esc(atual.usuarioNome);
@@ -582,8 +582,8 @@ function gerarRelatorioDinamico() {
 
       if (dataTexto.includes('/')) {
         const partes = dataTexto.split('/');
-        mesChamado = partes[1] ? partes[1].trim() : "—"; 
-        if (partes[2]) anoChamado = partes[2].split(',')[0].trim(); 
+        mesChamado = partes[1] ? partes[1].trim() : "—";
+        if (partes[2]) anoChamado = partes[2].split(',')[0].trim();
       }
 
       const bateMes = (selMes === 'TODOS' || mesChamado === selMes);
@@ -641,13 +641,13 @@ function gerarRelatorioDinamico() {
 // ============================================================
 // START (POLLING AUTOMÁTICO DE 4 SEGUNDOS ⏱️)
 // ============================================================
-updateClock(); 
+updateClock();
 setInterval(updateClock, 1000);
 controlarAbasPorPerfil();
 
-carregarChamados(); 
+carregarChamados();
 carregarTecnicos();
-setInterval(carregarChamados, 4000); 
+setInterval(carregarChamados, 4000);
 
 carregarSetoresDoEnum();
 carregarEquipamentosDoEnum();
