@@ -1,4 +1,4 @@
-// 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT (REDE LOCAL)
+// 🌐 CONFIGURAÇÃO DA URL DA SUA API JAVA SPRING BOOT (VPS / HOST ATUAL)
 const API_BASE_URL = `${window.location.origin}/api`;
 
 // 🔒 CONTROLE DE ACESSO: Verifica se na URL tem "?perfil=tecnico"
@@ -12,7 +12,7 @@ let pendingAssumirId = null;
 let selectedPrio = 'MEDIA';
 
 // ============================================================
-// REQUISIÇÕES DA API (FETCH) - TOTALMENTE SEM NGROK 🧼
+// REQUISIÇÕES DA API (FETCH) 🧼
 // ============================================================
 
 // GET - Buscar setores dinâmicos do Enum do Java
@@ -94,7 +94,7 @@ async function carregarChamados() {
     }
   } catch (err) {
     console.error(err);
-    toast('Você não está conectado na rede  ⚠', true);
+    toast('Erro de conexão com o servidor da VPS ⚠', true);
   }
 }
 
@@ -171,7 +171,7 @@ async function criarChamado(chamadoDTO) {
     resetForm();
   } catch (err) {
     console.error(err);
-    toast('Falha na conexão: Verifique se está conectado no Wi-Fi da ARSAL.', true);
+    toast('Falha ao registrar chamado. Verifique sua conexão com a VPS.', true);
   }
 }
 
@@ -232,15 +232,12 @@ function renderPainel() {
   // 🧹 FILTRAGEM INTELIGENTE: Remove os fechados antigos da fila visual
   let data = chamados.filter(c => {
     if (c.status === 'FECHADO') {
-      // Verifica se a string da data do chamado contém a data de hoje
       let dataCriacao = c.criadoEm || "";
       return dataCriacao.includes(hojeTexto);
     }
-    // Se estiver ABERTO ou ANDAMENTO, mantém sempre na tela!
     return true;
   });
 
-  // Aplica o filtro dos botões do topo (Todos, Abertos, Em andamento, Fechados)
   if (filterActive !== 'todos') {
     data = data.filter(c => c.status === filterActive);
   }
@@ -269,7 +266,7 @@ function renderPainel() {
         <span class="badge badge-${c.status}">${c.status}</span>
       </div>
       <div class="card-desc">${esc(c.tipoProblema)}</div> 
-     <div class="card-footer">
+      <div class="card-footer">
         <span class="card-ts">Aberto em: ${c.criadoEm || '--'}</span>
         ${c.status === 'FECHADO'
         ? `<span class="card-tecnico" style="color: var(--green);">✅ Finalizado por: <strong>${esc(c.tecnico?.nome || c.tecnicoNome || 'TI ARSAL')}</strong></span>`
@@ -290,6 +287,7 @@ function renderPainel() {
     list.appendChild(div);
   });
 }
+
 function preencherSelectTecnicos() {
   const select = document.getElementById('m-tecnico-select');
   if (!select) return;
@@ -518,7 +516,6 @@ function controlarAbasPorPerfil() {
     if (abaGerenciar) abaGerenciar.style.display = 'none';
     if (abaMural) abaMural.style.display = 'none';
   }
-
 }
 
 function atualizarMuralTV() {
@@ -544,7 +541,7 @@ function atualizarMuralTV() {
   }
 
   const chamadosAbertos = chamados.filter(c => c.status === 'ABERTO');
-  badgeQtd.innerText = chamadosAbertos.length;
+  if (badgeQtd) badgeQtd.innerText = chamadosAbertos.length;
 
   if (chamadosAbertos.length === 0) {
     listaEspera.innerHTML = '<div style="color: var(--txt-dim); text-align: center; padding: 20px; font-size:0.85rem;">📭 Fila zerada! Tudo em dia.</div>';
@@ -560,7 +557,7 @@ function atualizarMuralTV() {
       <span class="badge badge-setor" style="font-size: 0.7rem; font-weight: bold;">${esc(c.setor)}</span>
     </div>
   `).join('');
-} // 🌟 FECHAMENTO DA TV REPARADO AQUI!
+}
 
 function gerarRelatorioDinamico() {
   try {
