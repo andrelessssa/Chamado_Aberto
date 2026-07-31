@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ARSAL · Central de Chamados TI</title>
-  <!-- Link para o arquivo CSS externo -->
-  <link rel="stylesheet" href="style.css?v=2">
+
+  <link rel="stylesheet" href="style.css?v=20">
 </head>
 
 <body>
@@ -17,14 +17,9 @@
       <div class="logo-dot"></div>
       ARSAL · Chamados TI
     </div>
-    <div class="topbar-meta" style="display: flex; align-items: center; gap: 15px;">
+    <div class="topbar-meta">
       <span><span id="live-count">0</span> chamados abertos</span>
       <span id="live-clock">--:--:--</span>
-      <!-- 🔒 BOTÃO DE ACESSO RESTRITO DA TI (MODO TÉCNICO) -->
-      <button id="btn-modo-tecnico"
-        style="background: transparent; border: 1px solid var(--border); color: var(--txt-dim); padding: 4px 10px; border-radius: var(--rs); cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 5px;">
-        🔑 Modo Técnico
-      </button>
     </div>
   </div>
 

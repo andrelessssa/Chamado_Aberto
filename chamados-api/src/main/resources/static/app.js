@@ -499,18 +499,9 @@ function controlarAbasPorPerfil() {
   const abaMural = document.querySelector('.tab-btn[data-tab="mural"]');
 
   if (ehTecnico) {
-    if (abaRelatorio) {
-      abaRelatorio.style.display = 'inline-flex';
-      abaRelatorio.style.alignItems = 'center';
-    }
-    if (abaGerenciar) {
-      abaGerenciar.style.display = 'inline-flex';
-      abaGerenciar.style.alignItems = 'center';
-    }
-    if (abaMural) {
-      abaMural.style.display = 'inline-flex';
-      abaMural.style.alignItems = 'center';
-    }
+    if (abaRelatorio) abaRelatorio.style.display = 'inline-flex';
+    if (abaGerenciar) abaGerenciar.style.display = 'inline-flex';
+    if (abaMural) abaMural.style.display = 'inline-flex';
   } else {
     if (abaRelatorio) abaRelatorio.style.display = 'none';
     if (abaGerenciar) abaGerenciar.style.display = 'none';
