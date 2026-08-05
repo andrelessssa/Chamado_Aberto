@@ -1,4 +1,3 @@
-cat << 'EOF' > ~/sistemas/app-chamadoaberto/chamados-api/Dockerfile
 # 🛠️ ETAPA 1: Compila o projeto (Java + arquivos estáticos) direto no Docker
 FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
@@ -13,4 +12,3 @@ COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8081
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
-EOF
