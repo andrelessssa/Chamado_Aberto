@@ -150,8 +150,18 @@ async function apiDeletarTecnico(id) {
   }
 }
 
-// POST - Criar novo chamado
+// ➕ POST - Criar novo chamado (COM TRAVA ANTI-DUPLO CLIQUE 🔒)
 async function criarChamado(chamadoDTO) {
+  const btnEnviar = document.getElementById('btn-enviar');
+
+  // 🛡️ 1. Desabilita o botão na hora do clique
+  if (btnEnviar) {
+    btnEnviar.disabled = true;
+    btnEnviar.innerText = 'ENVIANDO CHAMADO...';
+    btnEnviar.style.opacity = '0.6';
+    btnEnviar.style.cursor = 'not-allowed';
+  }
+
   try {
     const res = await fetch(`${API_BASE_URL}/chamados`, {
       method: 'POST',
@@ -172,6 +182,33 @@ async function criarChamado(chamadoDTO) {
   } catch (err) {
     console.error(err);
     toast('Falha ao registrar chamado. Verifique sua conexão com a VPS.', true);
+  } finally {
+    // 🛡️ 2. Reativa o botão após finalizar a requisição
+    if (btnEnviar) {
+      btnEnviar.disabled = false;
+      btnEnviar.innerText = 'ENVIAR CHAMADO';
+      btnEnviar.style.opacity = '1';
+      btnEnviar.style.cursor = 'pointer';
+    }
+  }
+}
+
+// 🗑️ DELETE - Excluir Chamado do Banco
+async function apiDeletarChamado(id) {
+  if (!confirm(`Tem certeza que deseja EXCLUIR permanentemente o chamado #${id}?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/chamados/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) throw new Error();
+
+    toast(`Chamado #${id} excluído com sucesso! 🗑️`);
+    carregarChamados();
+  } catch (err) {
+    console.error(err);
+    toast('Erro ao excluir chamado.', true);
   }
 }
 
@@ -281,6 +318,7 @@ function renderPainel() {
       ${c.status === 'ABERTO' ? `<button class="act-btn assumir" onclick="openModalAssumir(${c.id})">Assumir</button>` : ''}
       ${c.status === 'ANDAMENTO' ? `<button class="act-btn fechar" onclick="apiFecharChamado(${c.id})">Resolver</button><button class="act-btn reabrir" onclick="apiReabrirChamado(${c.id})">Reabrir</button>` : ''}
       ${c.status === 'FECHADO' ? `<button class="act-btn reabrir" onclick="apiReabrirChamado(${c.id})">Reabrir</button>` : ''}
+      <button class="act-btn" style="border-color: var(--rose); color: var(--rose); background: var(--rose-dim);" onclick="apiDeletarChamado(${c.id})">Excluir</button>
     </div>
     ` : ''}
   `;
