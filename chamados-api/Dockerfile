@@ -1,10 +1,13 @@
-# Usando a imagem oficial e leve do Java 25 da Temurin ☕🔥
-FROM eclipse-temurin:25-jdk-alpine
-
+# 🛠️ ETAPA 1: Compila o projeto (Java + arquivos estáticos) direto no Docker
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copia o arquivo executável .jar que o seu Windows já gerou na pasta target
-COPY target/*.jar app.jar
+# 🚀 ETAPA 2: Imagem final para rodar a aplicação
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8081
 
