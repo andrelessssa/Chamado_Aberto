@@ -714,7 +714,6 @@ select.input-field option {
   background-color: var(--bg) !important;
   color: #ffffff !important;
 }
-
 /* ============================================================
    📱 RESPONSIVIDADE & TRAVA MOBILE (UNIFICADO)
    ============================================================ */
@@ -730,6 +729,25 @@ body {
   position: relative;
 }
 
+/* 💻 TELAS GRANDES (DESKTOP/TV): Exibe lado a lado em 2 colunas */
+@media (min-width: 769px) {
+  #view-mural > div,
+  .mural-grid {
+    display: grid !important;
+    grid-template-columns: 1.2fr 1fr !important;
+    gap: 24px !important;
+    align-items: start !important;
+  }
+
+  #view-relatorio > div,
+  .relatorio-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+/* 📱 DISPOSITIVOS MÓVEIS (CELULARES): Empilha os cards um em cima do outro */
 @media (max-width: 768px) {
   body {
     padding: 0 !important;
@@ -823,23 +841,22 @@ body {
     border-top: 1px solid var(--border-s) !important;
     padding-top: 10px !important;
   }
-}
 
-/* 📺 MURAL DA TV & RELATÓRIOS NO MOBILE */
-#view-mural>div,
-#view-relatorio>div,
-.mural-grid,
-.relatorio-grid {
-  grid-template-columns: 1fr !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 16px !important;
-}
+  /* 📺 MURAL DA TV & RELATÓRIOS APENAS NO MOBILE */
+  #view-mural > div,
+  #view-relatorio > div,
+  .mural-grid,
+  .relatorio-grid {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
 
-/* Garante que os cards do mural ocupem 100% da largura da tela */
-#view-mural .card,
-#view-mural>div>div {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  #view-mural .card,
+  #view-mural > div > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
 }

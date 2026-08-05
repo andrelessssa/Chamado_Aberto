@@ -141,4 +141,11 @@ public class ChamadoService {
                 chamado.getTecnico() != null ? chamado.getTecnico().getNome() : null // 🌟 11º parâmetro: tecnicoNome!
         );
     }
+    // 🗑️ REGRA DE EXCLUSÃO
+    public void delete(Long id) {
+        Chamado chamado = chamadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Chamado #" + id + " não encontrado para exclusão!"));
+
+        chamadoRepository.delete(chamado);
+    }
 }

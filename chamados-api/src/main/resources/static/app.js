@@ -11,6 +11,9 @@ let filterActive = 'todos';
 let pendingAssumirId = null;
 let selectedPrio = 'MEDIA';
 
+// 🛑 FLAG DE BLOQUEIO GLOBAL ANTI-DUPLO CLIQUE
+let enviandoChamado = false;
+
 // ============================================================
 // REQUISIÇÕES DA API (FETCH) 🧼
 // ============================================================
@@ -150,16 +153,18 @@ async function apiDeletarTecnico(id) {
   }
 }
 
-// ➕ POST - Criar novo chamado (COM TRAVA ANTI-DUPLO CLIQUE 🔒)
+// ➕ POST - Criar novo chamado (COM TRAVA BLINDADA ANTI-DUPLO CLIQUE 🔒)
 async function criarChamado(chamadoDTO) {
   const btnEnviar = document.getElementById('btn-enviar');
 
-  // 🛡️ 1. Desabilita o botão na hora do clique
+  // 🛡️ TRAVA 1: Ativa a flag global e bloqueia o botão nativamente
+  enviandoChamado = true;
   if (btnEnviar) {
     btnEnviar.disabled = true;
     btnEnviar.innerText = 'ENVIANDO CHAMADO...';
-    btnEnviar.style.opacity = '0.6';
+    btnEnviar.style.opacity = '0.5';
     btnEnviar.style.cursor = 'not-allowed';
+    btnEnviar.style.pointerEvents = 'none';
   }
 
   try {
@@ -183,12 +188,14 @@ async function criarChamado(chamadoDTO) {
     console.error(err);
     toast('Falha ao registrar chamado. Verifique sua conexão com a VPS.', true);
   } finally {
-    // 🛡️ 2. Reativa o botão após finalizar a requisição
+    // 🛡️ TRAVA 2: Reativa a flag e o botão após o ciclo completo do fetch
+    enviandoChamado = false;
     if (btnEnviar) {
       btnEnviar.disabled = false;
       btnEnviar.innerText = 'ENVIAR CHAMADO';
       btnEnviar.style.opacity = '1';
       btnEnviar.style.cursor = 'pointer';
+      btnEnviar.style.pointerEvents = 'auto';
     }
   }
 }
@@ -379,12 +386,17 @@ function updateBadgeAndCount() {
 }
 
 // ============================================================
-// TRATAMENTO DE EVENTOS DA TELA
+// TRATAMENTO DE EVENTOS DA TELA (CORRIGIDO COM VALIDAÇÃO ANTI-DUPLO CLIQUE 🛡️)
 // ============================================================
 
 const btnEnviar = document.getElementById('btn-enviar');
 if (btnEnviar) {
-  btnEnviar.addEventListener('click', () => {
+  btnEnviar.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    // 🛑 SE JÁ ESTIVER PROCESSANDO, IGNORA QUALQUER CLIQUE EXTRA IMEDIATAMENTE!
+    if (enviandoChamado) return;
+
     const dto = {
       usuarioNome: document.getElementById('f-nome').value.trim(),
       setor: document.getElementById('f-setor').value,
@@ -393,6 +405,7 @@ if (btnEnviar) {
       prioridade: selectedPrio,
       descricao: document.getElementById('f-desc').value.trim()
     };
+
     criarChamado(dto);
   });
 }
