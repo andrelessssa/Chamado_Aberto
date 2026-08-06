@@ -51,7 +51,7 @@ body {
   border-radius: 8px;
 }
 
-/* TOPBAR */
+/* 🔝 TOPBAR */
 .topbar {
   background: var(--void);
   border-bottom: 1px solid var(--border);
@@ -87,11 +87,9 @@ body {
   0% {
     box-shadow: 0 0 0 0 rgba(249, 115, 22, .5);
   }
-
   70% {
     box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
   }
-
   100% {
     box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
   }
@@ -116,7 +114,7 @@ body {
   color: var(--txt-dim);
 }
 
-/* TABS */
+/* 🗂️ TABS DE NAVEGAÇÃO */
 .tabs {
   display: flex;
   gap: 0;
@@ -163,7 +161,7 @@ body {
   text-align: center;
 }
 
-/* VIEWS & CARDS */
+/* 📄 VIEWS & CARDS */
 .view {
   display: none;
   padding: 36px 28px 80px;
@@ -349,7 +347,7 @@ body {
   margin-bottom: 4px;
 }
 
-/* PAINEL DE CHAMADOS */
+/* 📊 PAINEL DE CHAMADOS */
 .painel-header {
   display: flex;
   align-items: center;
@@ -572,19 +570,19 @@ body {
   display: none;
 }
 
-/* MODAIS & TABELAS */
+/* 🪟 MODAIS (ESTRUTURA UNIFICADA E PROTEGIDA) */
 .modal-overlay {
-  display: none;
+  display: none !important;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .65);
-  z-index: 200;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
   align-items: center;
   justify-content: center;
 }
 
 .modal-overlay.open {
-  display: flex;
+  display: flex !important;
 }
 
 .modal {
@@ -592,8 +590,9 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 32px;
-  max-width: 460px;
+  max-width: 550px;
   width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 .modal h3 {
@@ -633,6 +632,7 @@ body {
   cursor: pointer;
 }
 
+/* 📊 TABELAS E NOTIFICAÇÕES TOAST */
 .tec-table {
   width: 100%;
   border-collapse: collapse;
@@ -659,7 +659,7 @@ body {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 300;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -686,6 +686,7 @@ body {
   font-size: 1.1rem;
 }
 
+/* 🎛️ CAMPOS DE SELECTS E INPUTS */
 #m-tecnico-select option {
   color: #ffffff !important;
   background-color: #1a1f2c !important;
@@ -715,118 +716,6 @@ select.input-field option {
   color: #ffffff !important;
 }
 
-/* 🛠️ Estilos do Modal de Detalhes */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.modal-overlay.hidden {
-    display: none !important;
-}
-
-.modal-card {
-    background: #111827;
-    color: #e2e8f0;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 550px;
-    padding: 24px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #1e293b;
-    padding-bottom: 12px;
-    margin-bottom: 16px;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: #f97316; /* Laranja ARSAL */
-    font-size: 1.25rem;
-}
-
-.btn-close {
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.btn-close:hover {
-    color: #ffffff;
-}
-
-.modal-body p {
-    margin: 8px 0;
-    font-size: 0.95rem;
-    color: #cbd5e1;
-}
-
-.modal-divider {
-    border: 0;
-    border-top: 1px solid #1e293b;
-    margin: 16px 0;
-}
-
-.descricao-box {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 8px;
-    color: #e2e8f0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    white-space: pre-wrap; /* Mantém quebras de linha que o usuário digitou */
-    max-height: 180px;
-    overflow-y: auto;
-}
-
-.btn-detalhes {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 4px;
-    transition: background 0.2s;
-}
-
-.btn-detalhes:hover {
-    background-color: #2563eb;
-}
-
-.modal-footer {
-    margin-top: 20px;
-    text-align: right;
-}
-
-.btn-secundario {
-    background: #475569;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-secundario:hover {
-    background: #334155;
-}
 /* ============================================================
    📱 RESPONSIVIDADE & TRAVA MOBILE (UNIFICADO)
    ============================================================ */
@@ -955,7 +844,7 @@ body {
     padding-top: 10px !important;
   }
 
-  /* 📺 MURAL DA TV & RELATÓRIOS APENAS NO MOBILE */
+  /* 📺 MURAL DA TV & RELATÓRIOS NO MOBILE */
   #view-mural > div,
   #view-relatorio > div,
   .mural-grid,

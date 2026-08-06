@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ARSAL · Central de Chamados TI</title>
 
-  <link rel="stylesheet" href="style.css?v=20">
+  <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 
 <body>
 
-  <!-- TOPBAR -->
+  <!-- 🔝 TOPBAR -->
   <div class="topbar">
     <div class="logo">
       <div class="logo-dot"></div>
@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <!-- TABS 🗂️ -->
+  <!-- 🗂️ TABS DE NAVEGAÇÃO -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="abrir">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -59,7 +59,7 @@
     </button>
   </div>
 
-  <!-- VIEW 1 – ABRIR CHAMADO -->
+  <!-- 📝 VIEW 1 – ABRIR CHAMADO -->
   <div class="view active" id="view-abrir">
     <div class="form-hero">
       <div class="label">Central de Suporte</div>
@@ -117,7 +117,7 @@
     </div>
   </div>
 
-  <!-- VIEW 2 – PAINEL TÉCNICO -->
+  <!-- 🛠️ VIEW 2 – PAINEL TÉCNICO -->
   <div class="view" id="view-painel">
     <div class="painel-header">
       <h2>Fila de Chamados</h2>
@@ -136,7 +136,7 @@
     <div class="chamados-list" id="chamados-list"></div>
   </div>
 
-  <!-- VIEW 3 – GERENCIAR TÉCNICOS -->
+  <!-- 💼 VIEW 3 – GERENCIAR TÉCNICOS -->
   <div id="view-gerenciar" class="view">
     <div class="form-hero">
       <div class="label">Equipe de TI</div>
@@ -151,8 +151,7 @@
           <input type="text" id="f-nome-tecnico" placeholder="Ex: André Lessa">
         </div>
         <div class="field">
-          <button id="btn-cadastrar-tecnico" class="btn-submit" style="margin-top: 0; padding: 12px;">+ Adicionar
-            Técnico</button>
+          <button id="btn-cadastrar-tecnico" class="btn-submit" style="margin-top: 0; padding: 12px;">+ Adicionar Técnico</button>
         </div>
       </div>
 
@@ -163,7 +162,7 @@
     </div>
   </div>
 
-  <!-- VIEW 4 – RELATÓRIO MENSUAL -->
+  <!-- 📊 VIEW 4 – RELATÓRIO MENSUAL -->
   <div id="view-relatorio" class="view">
     <div class="form-hero" style="padding-bottom: 15px;">
       <div class="label">Gestão Estratégica TI</div>
@@ -217,8 +216,7 @@
       </div>
     </div>
 
-    <div
-      style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
       <div class="card" style="border-left: 4px solid var(--blue);">
         <h3 style="color: #fff; margin-bottom: 15px;">🏢 Volumetria por Setor</h3>
         <div id="rep-lista-setores" style="display: flex; flex-direction: column; gap: 10px;"></div>
@@ -231,7 +229,7 @@
     </div>
   </div>
 
-  <!-- VIEW 5 – MURAL PÚBLICO TV 📊 -->
+  <!-- 📺 VIEW 5 – MURAL PÚBLICO TV -->
   <div id="view-mural" class="view">
     <div class="form-hero" style="padding-bottom: 20px;">
       <div class="label">Painel Público ARSAL</div>
@@ -240,29 +238,21 @@
 
     <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; max-width: 1200px; margin: 0 auto;">
 
-      <div class="card"
-        style="border-left: 6px solid var(--blue); background: var(--panel2); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 50px; text-align: center;">
-        <div
-          style="font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.15em; color: var(--blue); text-transform: uppercase; margin-bottom: 15px; animation: blink 1.5s infinite;">
+      <div class="card" style="border-left: 6px solid var(--blue); background: var(--panel2); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 50px; text-align: center;">
+        <div style="font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.15em; color: var(--blue); text-transform: uppercase; margin-bottom: 15px; animation: blink 1.5s infinite;">
           🔔 SENDO ATENDIDO AGORA
         </div>
         <h1 id="mural-atual-nome" style="font-size: 3.5rem; color: #fff; margin-bottom: 10px; font-weight: 800;">--</h1>
-        <div id="mural-atual-setor" class="badge badge-tipo"
-          style="font-size: 1.2rem; padding: 6px 16px; margin-bottom: 30px;">SETOR: --</div>
+        <div id="mural-atual-setor" class="badge badge-tipo" style="font-size: 1.2rem; padding: 6px 16px; margin-bottom: 30px;">SETOR: --</div>
 
-        <div
-          style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--r); width: 100%; border: 1px solid var(--border);">
-          <span
-            style="font-family: var(--mono); font-size: 0.75rem; color: var(--txt-dim); display: block; text-transform: uppercase;">Técnico
-            Responsável</span>
-          <h2 id="mural-atual-tecnico" style="color: var(--amber); margin-top: 5px; font-size: 1.8rem;">Aguardando...
-          </h2>
+        <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: var(--r); width: 100%; border: 1px solid var(--border);">
+          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--txt-dim); display: block; text-transform: uppercase;">Técnico Responsável</span>
+          <h2 id="mural-atual-tecnico" style="color: var(--amber); margin-top: 5px; font-size: 1.8rem;">Aguardando...</h2>
         </div>
       </div>
 
       <div class="card" style="border-top: 4px solid var(--amber);">
-        <h3
-          style="color: #fff; margin-bottom: 20px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="color: #fff; margin-bottom: 20px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
           <span>⏳ Próximos Chamados</span>
           <span id="mural-fila-qtd" class="tab-badge">0</span>
         </h3>
@@ -277,21 +267,14 @@
 
   <style>
     @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
   </style>
 
-  <!-- 🔍 MODAL DE DETALHES DO CHAMADO -->
-  <div class="modal-overlay" id="modal-detalhes">
-    <div class="modal" style="max-width: 550px; text-align: left;">
+  <!-- 🔍 MODAL DE DETALHES DO CHAMADO (Com trava de fechamento no fundo escuro) -->
+  <div class="modal-overlay" id="modal-detalhes" onclick="fecharModalDetalhes()">
+    <div class="modal" style="max-width: 550px; text-align: left;" onclick="event.stopPropagation()">
       <h3 style="margin-bottom: 15px; color: var(--amber);">📋 Detalhes do Chamado <span id="detalheId"></span></h3>
       
       <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--txt-main);">
@@ -310,14 +293,14 @@
       </div>
 
       <div class="modal-actions" style="margin-top: 20px; justify-content: flex-end;">
-        <button class="btn-cancel" onclick="fecharModalDetalhes()">Fechar</button>
+        <button class="btn-cancel" type="button" onclick="fecharModalDetalhes()">Fechar</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL – ASSUMIR CHAMADO -->
-  <div class="modal-overlay" id="modal-assumir">
-    <div class="modal">
+  <!-- 👤 MODAL – ASSUMIR CHAMADO -->
+  <div class="modal-overlay" id="modal-assumir" onclick="document.getElementById('modal-assumir').classList.remove('open')">
+    <div class="modal" onclick="event.stopPropagation()">
       <h3>Assumir chamado</h3>
       <div class="field">
         <label>Selecione seu Nome</label>
@@ -332,10 +315,11 @@
     </div>
   </div>
 
+  <!-- 🍞 NOTIFICAÇÕES TOAST -->
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <!-- Script da lógica externa (Versão v=7 para forçar reload do cache) -->
-  <script src="app.js?v=7"></script>
+  <!-- 📜 SCRIPT DA LÓGICA EXTERNA (Versão v=2.0 alinhada) -->
+  <script src="app.js?v=2.0"></script>
 </body>
 
 </html>
