@@ -419,6 +419,7 @@ document.querySelectorAll('#prio-group .pill').forEach(p => {
 });
 
 function openModalAssumir(id) {
+  fecharModalDetalhes(); // 🧹 Garante que fecha o modal de detalhes caso esteja aberto
   pendingAssumirId = id;
   carregarTecnicos();
   const modal = document.getElementById('modal-assumir');
@@ -677,6 +678,10 @@ function gerarRelatorioDinamico() {
 // 🔍 FUNÇÕES DO MODAL DE DETALHES DO CHAMADO
 // ============================================================
 function abrirModalDetalhes(id) {
+  // 🧹 Fecha qualquer outro modal aberto antes para evitar travamentos
+  const modalAssumir = document.getElementById('modal-assumir');
+  if (modalAssumir) modalAssumir.classList.remove('open');
+
   const c = chamados.find(item => item.id === id);
   if (!c) return;
 
