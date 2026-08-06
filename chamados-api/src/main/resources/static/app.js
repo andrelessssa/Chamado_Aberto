@@ -309,7 +309,7 @@ function renderPainel() {
         <span class="badge badge-prio-${c.prioridade}">${c.prioridade}</span>
         <span class="badge badge-${c.status}">${c.status}</span>
       </div>
-      <div class="card-desc">${esc(c.tipoProblema)}</div> 
+      <div class="card-desc">${esc(c.tipoProblema || c.titulo)}</div> 
       <div class="card-footer">
         <span class="card-ts">Aberto em: ${c.criadoEm || '--'}</span>
         ${c.status === 'FECHADO'
@@ -322,6 +322,7 @@ function renderPainel() {
     </div>
     ${ehTecnico ? `
     <div class="card-actions">
+      <button class="act-btn" style="border-color: var(--blue); color: var(--blue); background: rgba(59,130,246,0.15);" onclick="abrirModalDetalhes(${c.id})">🔍 Detalhes</button>
       ${c.status === 'ABERTO' ? `<button class="act-btn assumir" onclick="openModalAssumir(${c.id})">Assumir</button>` : ''}
       ${c.status === 'ANDAMENTO' ? `<button class="act-btn fechar" onclick="apiFecharChamado(${c.id})">Resolver</button><button class="act-btn reabrir" onclick="apiReabrirChamado(${c.id})">Reabrir</button>` : ''}
       ${c.status === 'FECHADO' ? `<button class="act-btn reabrir" onclick="apiReabrirChamado(${c.id})">Reabrir</button>` : ''}
@@ -386,7 +387,7 @@ function updateBadgeAndCount() {
 }
 
 // ============================================================
-// TRATAMENTO DE EVENTOS DA TELA (CORRIGIDO COM VALIDAÇÃO ANTI-DUPLO CLIQUE 🛡️)
+// TRATAMENTO DE EVENTOS DA TELA
 // ============================================================
 
 const btnEnviar = document.getElementById('btn-enviar');
@@ -394,7 +395,6 @@ if (btnEnviar) {
   btnEnviar.addEventListener('click', (event) => {
     event.preventDefault();
 
-    // 🛑 SE JÁ ESTIVER PROCESSANDO, IGNORA QUALQUER CLIQUE EXTRA IMEDIATAMENTE!
     if (enviandoChamado) return;
 
     const dto = {
@@ -613,7 +613,6 @@ function gerarRelatorioDinamico() {
 
     if (!listaSetoresDiv || !listaEquipsDiv) return;
 
-    // 1. Filtrar o array de chamados por Período, Setor e Equipamento
     const chamadosFiltrados = (chamados || []).filter(c => {
       let dataTexto = c.criadoEm || "";
       let mesChamado = "—";
@@ -633,7 +632,6 @@ function gerarRelatorioDinamico() {
       return bateMes && bateAno && bateSetor && bateEquip;
     });
 
-    // 2. Criar os dicionários de agrupamento
     const agrupadoSetor = {};
     const agrupadoEquip = {};
 
@@ -644,7 +642,6 @@ function gerarRelatorioDinamico() {
       agrupadoEquip[e] = (agrupadoEquip[e] || 0) + 1;
     });
 
-    // 🏆 3. Ordenar Setores por quantidade decrescente (O maior em primeiro)
     const setoresOrdenados = Object.entries(agrupadoSetor).sort((a, b) => b[1] - a[1]);
 
     if (setoresOrdenados.length === 0) {
@@ -658,7 +655,6 @@ function gerarRelatorioDinamico() {
       `).join('');
     }
 
-    // 🏆 4. Ordenar Equipamentos por quantidade decrescente (O campeão em primeiro)
     const equipsOrdenados = Object.entries(agrupadoEquip).sort((a, b) => b[1] - a[1]);
 
     if (equipsOrdenados.length === 0) {
@@ -675,6 +671,41 @@ function gerarRelatorioDinamico() {
   } catch (error) {
     console.error("Erro interno no relatório dinâmico:", error);
   }
+}
+
+// ============================================================
+// 🔍 FUNÇÕES DO MODAL DE DETALHES DO CHAMADO
+// ============================================================
+function abrirModalDetalhes(id) {
+  const c = chamados.find(item => item.id === id);
+  if (!c) return;
+
+  const elId = document.getElementById('detalheId');
+  const elSol = document.getElementById('detalheSolicitante');
+  const elSet = document.getElementById('detalheSetor');
+  const elCat = document.getElementById('detalheCategoria');
+  const elPrio = document.getElementById('detalhePrioridade');
+  const elData = document.getElementById('detalheData');
+  const elResp = document.getElementById('detalheResponsavel');
+  const elDesc = document.getElementById('detalheDescricao');
+
+  if (elId) elId.innerText = `#${c.id}`;
+  if (elSol) elSol.innerText = c.usuarioNome || 'Não informado';
+  if (elSet) elSet.innerText = c.setor || 'Não informado';
+  if (elCat) elCat.innerText = c.equipamento || c.equipmento || c.titulo || 'Geral';
+  if (elPrio) elPrio.innerText = c.prioridade || 'MÉDIA';
+  if (elData) elData.innerText = c.criadoEm || 'Não informada';
+  if (elResp) elResp.innerText = c.tecnico?.nome || c.tecnicoNome || 'Aguardando Técnico...';
+  
+  if (elDesc) elDesc.innerText = c.descricao || c.tipoProblema || c.titulo || 'Nenhuma descrição detalhada informada.';
+
+  const modal = document.getElementById('modal-detalhes');
+  if (modal) modal.classList.add('open');
+}
+
+function fecharModalDetalhes() {
+  const modal = document.getElementById('modal-detalhes');
+  if (modal) modal.classList.remove('open');
 }
 
 // ============================================================

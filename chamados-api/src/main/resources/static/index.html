@@ -289,6 +289,32 @@
     }
   </style>
 
+  <!-- 🔍 MODAL DE DETALHES DO CHAMADO -->
+  <div class="modal-overlay" id="modal-detalhes">
+    <div class="modal" style="max-width: 550px; text-align: left;">
+      <h3 style="margin-bottom: 15px; color: var(--amber);">📋 Detalhes do Chamado <span id="detalheId"></span></h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--txt-main);">
+        <p><strong>👤 Solicitante:</strong> <span id="detalheSolicitante">--</span></p>
+        <p><strong>🏢 Setor:</strong> <span id="detalheSetor">--</span></p>
+        <p><strong>💻 Equipamento/Tipo:</strong> <span id="detalheCategoria">--</span></p>
+        <p><strong>🔥 Prioridade:</strong> <span id="detalhePrioridade">--</span></p>
+        <p><strong>📅 Data de Abertura:</strong> <span id="detalheData">--</span></p>
+        <p><strong>🛠️ Responsável:</strong> <span id="detalheResponsavel">--</span></p>
+        
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+        
+        <p><strong>📝 Descrição Completa do Problema:</strong></p>
+        <div id="detalheDescricao" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--rs); padding: 12px; font-family: var(--font); font-size: 0.85rem; line-height: 1.5; color: var(--txt-bright); max-height: 180px; overflow-y: auto; white-space: pre-wrap;">
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px; justify-content: flex-end;">
+        <button class="btn-cancel" onclick="fecharModalDetalhes()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL – ASSUMIR CHAMADO -->
   <div class="modal-overlay" id="modal-assumir">
     <div class="modal">
@@ -308,8 +334,8 @@
 
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <!-- Script da lógica externa (Versão v=6) -->
-  <script src="app.js?v=6"></script>
+  <!-- Script da lógica externa (Versão v=7 para forçar reload do cache) -->
+  <script src="app.js?v=7"></script>
 </body>
 
 </html>
